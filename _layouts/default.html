@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page.title }}</title>
+    <style type="text/css">
+      body header, nav, nav ul, nav li { display:inline-block; }
+      article header h2, article header p { display:inline-block; }
+    </style>
+  </head>
+  <body>
+    <header>
+        <h1>{{ site.name }}</h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/about.html">About</a></li>
+      </ul>
+    </nav>
+    {{ content }}
+    <footer>
+    <p><small>This blog was inspired by <a href="http://motherfuckingwebsite.com/">Motherfucking Website</a>.</small></p>
+    </footer>
+  </body>
+</html>
