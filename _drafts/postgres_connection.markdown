@@ -1,12 +1,8 @@
-<!--
 ---
 layout: post
 title:  "How much is a PostgreSQL connection?"
 tags: [postgresql]
 ---
--->
-
-## How much is a PostgreSQL connection?
 
 __TLDR;__ Keep PostgreSQL connections low, preferably less than `2*cores + hdd spindels`<a href="#footnote0">[0]</a> because more won't help.
 
