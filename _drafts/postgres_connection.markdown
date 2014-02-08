@@ -4,11 +4,9 @@ title:  "Overhead/costs of a PostgreSQL connection"
 tags: [postgresql]
 ---
 
-__TLDR;__ Keep the number of PostgreSQL connections low, preferably around `2*cores + hdd spindels`<a href="#footnote0">[0]</a> because more won't help but cause you trouble.
+__TLDR;__ Keep the number of PostgreSQL connections low, preferably around `2*cores + hdd spindles`<a href="#footnote0">[0]</a> because more won't help but cause you trouble instead.
 
 This blog post explains the costs of a PostgreSQL connection. Paying attention to them helped us a lot at [6Wunderkinder](http://www.6wunderkinder.com). We've had trouble with our PostgreSQL DB, which had ~500 connections which suddenly started reading significantly more from disk and getting slower. Our problem was solved by shielding the PostgreSQL database with PGBouncer<a href="#footnote5">[5]</a>. Going from 350 to 20 connections immediately freed 3GB RAM, which was apparently enough for PostgreSQL to pull more stuff into memory and stop reading from disk.
-
-PGBouncer<a href="#footnote6">[6]</a> supports different pool modes, we're using `transaction`. Beware that there are some PostgreSQL features which are not supported in that mode<a href="#footnote7">[7]</a> most prominently prepared statements.
 
 The issue was gone since we've setup PGBouncer, but I was curious why it had such a big impact and what the costs/overhead of a connection are!
 
@@ -27,7 +25,7 @@ There are two different kind of costs:
    * temp\_buffers<a href="#footnote2">[2]</a>: used only for access to temporary tables, defaults to 8MB.
 
 According to <a href="#footnote1">[1]</a> the memory footprint usually amounts to ~10MB. 
-A secondary effect is more pressure on the cache since less memory is available (our problem!).
+A secondary effect is once you need more memory to satify each connection there is more pressure on the cache since less memory is available (our problem!).
 
 ### Le Fin
 
@@ -43,7 +41,7 @@ If I missed something or I got something wrong, feel free to reach out to me! Th
 
 ### Acknowledgements 
 
-I gathered these informations while working with [Torsten](http://torsten.io) on our database.
+I gathered these information while working with [Torsten](http://torsten.io) on our database.
 
 ### Sources
 
