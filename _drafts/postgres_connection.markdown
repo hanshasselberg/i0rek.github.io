@@ -15,7 +15,7 @@ Paying attention to the number of connections to PostgreSQL helped us a lot at [
 1. we were running out of file handles, which caused the database to crash
 
 In both cases we've had a couple hundred open connections to the database and we were able to solve both cases by putting a PGBouncer<a href="#footnote5">[5]</a> in front of the database.
-PGBouncer is a connection pool for PostgreSQL databases. We've configured it to allow 20 connections to the database while providing 1000 connections to clients. Apparently 20 connections are enough for us to get the work done.
+PGBouncer is a connection pool for PostgreSQL databases. We've configured it to allow 20 connections to the database while providing 1000 connections to clients. Apparently 20 connections are enough for us to get the work done. Depending on your situation it might be enough to set `max_connections`<a href="#footnote8">[8]</a> appropriately.
 
 The issue was solved but I still didn't know what was going on and thats why I went ahead collected every piece of information I could find about the costs of PostgreSQL connection!
 
@@ -73,3 +73,4 @@ Get in touch with [me](/about) if you want to share your thoughts!
 <span id="footnote5">[5]</span> [PostgreSQL: pg\_locks](http://www.postgresql.org/docs/9.3/static/view-pg-locks.html)<br />
 <span id="footnote6">[6]</span> [PGBouncer](http://pgfoundry.org/projects/pgbouncer/)<br />
 <span id="footnote7">[7]</span> [PostgreSQL Wiki: PGBouncer](http://wiki.postgresql.org/wiki/PgBouncer)<br />
+<span id="footnote8">[8]</span> [PostgreSQL: Resource Consumption](http://www.postgresql.org/docs/9.3/static/runtime-config-resource.html)
