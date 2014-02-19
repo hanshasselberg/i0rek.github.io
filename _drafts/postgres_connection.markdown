@@ -5,19 +5,19 @@ title:  "Costs of a PostgreSQL connection"
 
 This blog post explains the costs of a PostgreSQL connection. 
 
-__TLDR;__ Keep the number of PostgreSQL connections low, preferably around `2*cores + hdd spindles`<sup>\[9\]</sup> because more won't help but cause you trouble instead.
+__TLDR;__ Keep the number of PostgreSQL connections low, preferably around `2*cores + hdd spindles`<sup>\[9\]</sup>. More connections will only cause you more trouble.
 
-### History
+### Background
 
 Paying attention to the number of connections to PostgreSQL helped us a lot at [6Wunderkinder](http://www.6wunderkinder.com). We've had trouble with PostgreSQL, manifesting itself in two ways:
 
-1. we were running out of memory, which lead to significantly more reads from disk and in turn slower response times.
-1. we were running out of file handles, which caused the database to crash
+1. We were running out of memory which lead to significantly more reads from disk and in turn slower response times.
+1. We were running out of file handles which caused the database to crash
 
-In both cases we've had a couple hundred open connections to the database and we were able to solve both cases by putting a PGBouncer<sup>\[5\]</sup> in front of the database.
-PGBouncer is a connection pool for PostgreSQL databases. We've configured it to allow 20 connections to the database while providing 1000 connections to clients. Apparently 20 connections are enough for us to get the work done. Depending on your situation it might be enough to set `max_connections`<sup>\[8\]</sup> appropriately.
+In both cases we had a couple hundred open connections to the database, and we were able to solve both cases by putting a PGBouncer<sup>\[5\]</sup> in front of the database.
+PGBouncer is a connection pool for PostgreSQL databases. We configured it to allow 20 connections to the database while providing 1000 connections to clients. Apparently 20 connections are enough for us to get the work done. Depending on your situation it might be enough to set `max_connections`<sup>\[8\]</sup> appropriately.
 
-The issue was solved but I still didn't know what was going on and thats why I went ahead collected every piece of information I could find about the costs of PostgreSQL connection!
+The issue was solved, but I still wasn't sure what was going on. So I decided to collect every piece of information I could find about the costs of a PostgreSQL connection!
 
 ### Costs
 
@@ -28,12 +28,12 @@ There are two different kind of costs:
    * procarray<sup>\[1\]</sup><sup>\[3\]</sup>: lists every connection
    * local data.
 1. resources for each connection, which is its __own forked process__:
-   * work\_mem<sup>\[2\]</sup>: used for sort operations and hash tables, defaults to 1MB
-   * max\_files\_per\_process<sup>\[2\]</sup>: postgres will only clean up, when it is exceeding the limit, defaults to 1000
-   * temp\_buffers<sup>\[2\]</sup>: used only for access to temporary tables, defaults to 8MB.
+   * work\_mem<sup>\[2\]</sup>: used for sort operations and hash tables; defaults to 1MB
+   * max\_files\_per\_process<sup>\[2\]</sup>: postgres will only clean up when it is exceeding the limit; defaults to 1000
+   * temp\_buffers<sup>\[2\]</sup>: used only for access to temporary tables; defaults to 8MB.
 
 According to <sup>\[1\]</sup> the memory footprint usually amounts to ~10MB. 
-A secondary effect is once you need more memory to satify each connection there is more pressure on the cache since less memory is available (which was our problem!).
+A secondary effect is once you need more memory to satisfy each connection there is more pressure on the cache since less memory is available (which was our problem).
 
 ### Fin
 
@@ -46,22 +46,22 @@ with PGBouncer:<br/>
 
 Freeing ~3.5GB of memory was _exactly_ what we saw when we switched to PGBouncer! We then saw the free memory being used and the performance getting better.
 
-The second issue we've had makes sense too! Lets again assume we have 370 connections:
+The second issue we had makes sense too! Let's again assume we have 370 connections:
 
 without PGBouncer:<br/>
 `1000 files per connection * 370 = 370,000 files`<br/>
 with PGBouncer:<br/>
 `1000 files per connection * 20 = 20,000 files`.
 
-Running out of files is not suprising any more since PostgreSQL will only clean them up when it hits its limits and instead rely on the OS until then! 
+Running out of files is not surprising any more since PostgreSQL will only clean them up when it hits its limits. Until then it relies on the OS to handle this for it.  
 
-Digging into PostgreSQL was fun and I hope it helps you dealing with your database!
+Digging into PostgreSQL was fun, and I hope it helps you dealing with your database!
 
 ### Acknowledgements 
 
-I gathered these information while working with [Torsten](http://torsten.io) on our database.
+I gathered this information while working with [Torsten](http://torsten.io) on our database and want to thank [Ryan](https://twitter.com/itchyankles) for proofreading!
 
-Get in touch with [me](/about) if you want to share your thoughts!
+Get in touch with [me](/about), if you want to share your thoughts!
 
 ### Sources
 
