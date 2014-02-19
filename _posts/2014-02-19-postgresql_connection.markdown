@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Costs of a PostgreSQL connection"
+date:   2014-02-19 11:52:00
 ---
 
 This blog post explains the costs of a PostgreSQL connection. 
