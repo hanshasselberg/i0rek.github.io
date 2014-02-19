@@ -64,6 +64,9 @@ I gathered this information while working with [Torsten](http://torsten.io) on o
 
 Get in touch with [me](/about), if you want to share your thoughts!
 
+
+Edit: There is a discussion on [Hackernews](https://news.ycombinator.com/item?id=7263696).
+
 ### Sources
 
 1. [Heroku: Connection Limit Guidance](https://postgres.heroku.com/blog/past/2013/11/22/connection\_limit\_guidance/)<br />
