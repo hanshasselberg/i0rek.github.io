@@ -18,7 +18,7 @@ Paying attention to the number of connections to PostgreSQL helped us a lot at [
 In both cases we had a couple hundred open connections to the database, and we were able to solve both cases by putting a PGBouncer<sup>\[5\]</sup> in front of the database.
 PGBouncer is a connection pool for PostgreSQL databases. We configured it to allow 20 connections to the database while providing 1000 connections to clients. Apparently 20 connections are enough for us to get the work done. Depending on your situation it might be enough to set `max_connections`<sup>\[8\]</sup> appropriately.
 
-The issue was solved, but I still wasn't sure what was going on. So I decided to collect every piece of information I could find about the costs of a PostgreSQL connection!
+The issue was solved, but I still wasn't sure what was going on. So I decided to collect every piece of information I could find about the costs of a connection in PostgreSQL 9.3!
 
 ### Costs
 
