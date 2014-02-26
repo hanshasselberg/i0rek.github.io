@@ -1,4 +1,0 @@
-* cluster
-* fillfactor
-* pro
-* con
