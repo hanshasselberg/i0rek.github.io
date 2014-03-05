@@ -4,9 +4,9 @@ title:  "PostgreSQL: CLUSTER table_name USING index;"
 date:   2014-02-19 11:52:00
 ---
 
-__TLDR;__ `CLUSTER table_name USING index` can greatly increase performance when you know what you're doing!
+__TLDR;__ `CLUSTER table_name USING index` can greatly increase performance but is hard to maintain!
 
-The CLUSTER<sup>2</sup> documentation is great and I'm mostly repeating what is already in there. I'm adding a bit background and some specific examples though, you might find interesting.
+The CLUSTER<sup>2</sup> documentation is great and I'm mostly repeating what is already in there. I'm adding a bit background and specific examples you might find interesting.
 
 ### Background
 
@@ -21,10 +21,10 @@ CREATE TABLE tasks (
 CREATE INDEX tasks_list_id on tasks(list_id);
 ```
 
-The most frequent query is `SELECT * FROM tasks WHERE list_id IN (1, 2, 3)`. Unfortunately this query is rather expensive! Especially when querying for tenth or hundreds of list ids. Lets see what is going on!
+The most frequent query is `SELECT * FROM tasks WHERE list_id IN (1, 2, 3)`. Unfortunately this query is rather expensive! Especially when querying for many list ids.
 
 ```
-EXPLAIN ANALYZE SELECT * 
+EXPLAIN (ANALYZE, BUFFERS) SELECT * 
 FROM tasks 
 WHERE list_id IN (1, 2);
 ```
@@ -33,7 +33,7 @@ Now lets repeat the same query on a clustered table:
 
 ```
 CLUSTER TABLE tasks USING tasks_list_id;
-EXPLAIN ANALYZE SELECT * 
+EXPLAIN (ANALYZE, BUFFERS) SELECT * 
 FROM tasks 
 WHERE list_id IN (1, 2, 3);
 ```
@@ -45,7 +45,7 @@ What has happened? That was my question exacactly when I was experimenting with 
 > When a table is clustered, it is physically reordered based on the index information.<sup>2</sup>
 
 A clustered table doesn't help when querying rows randomly. But it can greatly increase performance when you query a range of index values or a single index value with multiple values! 
-Because when the queried data is in one place on the disk less time consuming disk seeks are necessary. 
+Because when the queried data is in one place on the disk less time consuming disk reads are necessary.
 
 Looking back at our query `SELECT * FROM tasks WHERE list_id IN (1, 2, 3)`, we can now explain why the clustered table is so much faster! But that will have to wait until we how the test data is structured. I have a script which creates 500.000.000 tasks in 500.000 lists:
 
@@ -70,6 +70,7 @@ Consider the clustered table on the other hand. The tasks are grouped together o
 ### fubar
 
 * pg_reorg
+* replica
 
 
 ### Sources
