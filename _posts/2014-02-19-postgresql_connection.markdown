@@ -66,6 +66,7 @@ Get in touch with [me](/about), if you want to share your thoughts!
 
 
 Edit: There is a discussion on [Hackernews](https://news.ycombinator.com/item?id=7263696).
+Edit: I added Cybertec: max\_connections - Performance impacts<sup>10</sup> to the sources. It is an experiment demonstrating how idle connections hurt performance.
 
 ### Sources
 
@@ -78,3 +79,4 @@ Edit: There is a discussion on [Hackernews](https://news.ycombinator.com/item?id
 7. [PostgreSQL Wiki: PGBouncer](http://wiki.postgresql.org/wiki/PgBouncer)<br />
 8. [PostgreSQL: Connections and Authentication](http://www.postgresql.org/docs/9.3/static/runtime-config-connection.html#GUC-MAX-CONNECTIONS)
 9. [PostgreSQL Wiki: Number of Database Connections](http://wiki.postgresql.org/wiki/Number_Of_Database_Connections)<br/>
+10. [Cybertec: max\_connections - Performance impacts](http://www.cybertec.at/max_connections-performance-impacts/)<br/>
