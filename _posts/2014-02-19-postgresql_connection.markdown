@@ -66,6 +66,7 @@ Get in touch with [me](/about), if you want to share your thoughts!
 
 
 Edit: There is a discussion on [Hackernews](https://news.ycombinator.com/item?id=7263696).
+
 Edit: I added Cybertec: max\_connections - Performance impacts<sup>10</sup> to the sources. It is an experiment demonstrating how idle connections hurt performance.
 
 ### Sources
