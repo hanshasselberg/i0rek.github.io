@@ -4,13 +4,21 @@ title:  "PostgreSQL: CLUSTER table_name USING index;"
 date:   2014-02-19 11:52:00
 ---
 
-__TLDR;__ `CLUSTER table_name USING index` can greatly increase performance but is hard to maintain!
+__TLDR;__ `CLUSTER table_name USING index` can greatly increase performance but is hard to maintain.
 
-The CLUSTER<sup>2</sup> documentation is great and I'm mostly repeating what is already in there. I'm adding a bit background and specific examples you might find interesting.
+The CLUSTER<sup>1</sup> documentation is great and it covers the technical details very well. You have to read all of it if you intend to use it. This post explains why and how I'm using it.
 
 ### Background
 
-I'm preparing the migration of our tasks PostgreSQL 9.1 database to a PostgreSQL 9.3 database. We're switching to a hosted database instead of running our own server because we're not good at operating database servers. For the scope of this blog post I'm going to assume a very simple table schema: <br/>
+I'm preparing the migration of our tasks PostgreSQL 9.1 database to a PostgreSQL 9.3 database. We're switching to a hosted database instead of running our own server because we're not good at operating database servers. The servers we host our database on are huge machines: 2 [hi.4xlarge](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage_instances.html) instances. This is unfortunate because they can deal with a lot of crap. We can throw everything at them. I want to stop doing that and my goal is to migrate the database to 1 [db.m2.2xlarge](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html) instances with 1000 provisioned IOPS. 
+
+As you probably noticed there is quite a big difference between 2 hi.4xlarge and 1 db.m1.xlarge. For example has the latter 2*120 times less provisioned IOPS - the resource we struggle with. I set this goal because I believe it is realistic and that we only need these big machines at the moment because we're doing it wrong.
+
+This blog post explains why clustering the table was crucial to archiving my goal!
+
+### CLUSTER
+
+For the scope of this blog post I'm going to assume a very simple table schema:
 
 ```
 CREATE TABLE tasks (
@@ -18,56 +26,62 @@ CREATE TABLE tasks (
   title character varying(255), 
   list_id integer
 );
-CREATE INDEX tasks_list_id on tasks(list_id);
+CREATE INDEX index_list_id on tasks(list_id);
 ```
 
-The most frequent query is `SELECT * FROM tasks WHERE list_id IN (1, 2, 3)`. Unfortunately this query is rather expensive! Especially when querying for many list ids.
+I generated 500,000,000 tasks in 500,000 lists and every 1000th tasks belongs to the same list.
+
+The most frequent type of query is `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`. Unfortunately this query is rather expensive especially when querying for many lists. The query I'm using for demonstration includes every 5000th list - 100 in total:
 
 ```
 EXPLAIN (ANALYZE, BUFFERS) SELECT * 
 FROM tasks 
-WHERE list_id IN (1, 2);
+WHERE list_id IN (5000, 10000, ...);
+------------------------------------- Query Plan
+Index Scan using index_list_id on tasks
+  Index Cond: (list_id = ANY ('{5000, 10000, ...}'::integer[]))
+  Buffers: shared hit=5316 read=5120
+Total runtime: 2478.740 ms
+(4 rows)
 ```
 
 Now lets repeat the same query on a clustered table:
 
 ```
-CLUSTER TABLE tasks USING tasks_list_id;
+CLUSTER TABLE tasks_clustered USING index_list_id;
+ANALYZE tasks_clustered;
 EXPLAIN (ANALYZE, BUFFERS) SELECT * 
 FROM tasks 
-WHERE list_id IN (1, 2, 3);
+WHERE list_id IN (5000, 10000, ...);
+------------------------------------- Query Plan
+Index Scan using index_list_id on tasks_clustered
+  Index Cond: (list_id = ANY ('{5000, 10000, ...}'::integer[]))
+  Buffers: shared hit=399 read=199
+Total runtime: 80.665 ms
+(4 rows)
 ```
 
-### CLUSTER
+You can look at the full queries and query plans here: [full explain](http://www.example.com). As you can see the query was >30 times faster on the clustered table because significantly less buffers were needed by PostgreSQL to respond.
 
 What has happened? That was my question exacactly when I was experimenting with the data some time ago. What is 'CLUSTER' doing anyways?
 
-> When a table is clustered, it is physically reordered based on the index information.<sup>2</sup>
+> When a table is clustered, it is physically reordered based on the index information.<sup>1</sup>
 
 A clustered table doesn't help when querying rows randomly. But it can greatly increase performance when you query a range of index values or a single index value with multiple values! 
-Because when the queried data is in one place on the disk less time consuming disk reads are necessary.
+Because when the queried data is in one place on the disk.
 
-Looking back at our query `SELECT * FROM tasks WHERE list_id IN (1, 2, 3)`, we can now explain why the clustered table is so much faster! But that will have to wait until we how the test data is structured. I have a script which creates 500.000.000 tasks in 500.000 lists:
+Looking back at our query `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`, we can now explain why the clustered table is so much faster! The tasks are grouped together on the disk according to their list id. PostgreSQL can read every lists tasks from disk without jumping around. Thats fast and convinient! Whereas for the unclustered table the tasks for each list are spread across the the disk.
 
-```
-num_tasks = 500_000_000
-num_lists = 500_000
-num_tasks.times do |i|
-  Task.create(title: "testtitle#{i}", list_id: i%num_lists)
-end
-```
+### Maintenance 
 
-That means every 1000th task belongs to the same list. This is not a good distribution given our query. It also means that PostgreSQL probably has to fetch a lot of pages because it is very unlikely that that there is more than one task per page. That leads to bad performance on not clustered table.
+While the benefits of a clustered table are obvious there things you need to consider before using it. 
 
-Consider the clustered table on the other hand. The tasks are grouped together on the disk according to their list id. PostgreSQL can load one page after another until it has all the data. It only needs to seek to the correct position once and can read from there. This is very convinient and obviously very fast. 
-  
+1. `CLUSTER table_name` is a one-time operation, and updates, inserts, or deletes will fragment the table again. Depending on your use case you're probably forced to cluster your table regularly to maintain the order.
+1. `CLUSTER tables_name` issues an ExclusiveLock<sup>?</sup>, and as a result you can neither read nor write while clustering.
 
-### cons
+### Acknowledgements
 
-* order is not maintained
-* exclusive lock
-
-### fubar
+### Rand
 
 * pg_reorg
 * replica
@@ -75,8 +89,9 @@ Consider the clustered table on the other hand. The tasks are grouped together o
 
 ### Sources
 
-[1] http://www.postgresonline.com/journal/index.php?/archives/10-How-does-CLUSTER-ON-improve-index-performance.html<br/>
-[2] cluster http://www.postgresql.org/docs/9.3/static/sql-cluster.html<br/>
-[3] fillfactor: http://www.postgresql.org/docs/current/static/sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS<br/>
-[4] http://blog.chrishowie.com/2013/02/15/lock-free-clustering-of-large-postgresql-data-sets/v
-[5] http://use-the-index-luke.com/sql/clustering/index-organized-clustered-index<br/>
+1. cluster http://www.postgresql.org/docs/9.3/static/sql-cluster.html
+2. http://www.postgresonline.com/journal/index.php?/archives/10-How-does-CLUSTER-ON-improve-index-performance.html
+3. fillfactor: http://www.postgresql.org/docs/current/static/sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS
+4. http://blog.chrishowie.com/2013/02/15/lock-free-clustering-of-large-postgresql-data-sets
+5. http://use-the-index-luke.com/sql/clustering/index-organized-clustered-index
+6. https://gist.github.com/i0rek/163f59d850ac7a74157b
