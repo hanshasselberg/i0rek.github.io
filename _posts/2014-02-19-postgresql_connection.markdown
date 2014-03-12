@@ -71,13 +71,13 @@ Edit: I added Cybertec: max\_connections - Performance impacts<sup>10</sup> to t
 
 ### Sources
 
-1. [Heroku: Connection Limit Guidance](https://postgres.heroku.com/blog/past/2013/11/22/connection\_limit\_guidance/)<br />
-2. [PostgreSQL: Resource Consumption](http://www.postgresql.org/docs/9.3/static/runtime-config-resource.html)<br />
-3. [PostgreSQL: procarray.c](http://doxygen.postgresql.org/procarray_8c_source.html)<br />
-4. [Bruce Momjian:  Inside PostgreSQL Shared Memory](http://www.slideshare.net/PostgresOpen/inside-shmem)<br />
-5. [PostgreSQL: pg\_locks](http://www.postgresql.org/docs/9.3/static/view-pg-locks.html)<br />
-6. [PGBouncer](http://pgfoundry.org/projects/pgbouncer/)<br />
-7. [PostgreSQL Wiki: PGBouncer](http://wiki.postgresql.org/wiki/PgBouncer)<br />
+1. [Heroku: Connection Limit Guidance](https://postgres.heroku.com/blog/past/2013/11/22/connection\_limit\_guidance/)
+2. [PostgreSQL: Resource Consumption](http://www.postgresql.org/docs/9.3/static/runtime-config-resource.html)
+3. [PostgreSQL: procarray.c](http://doxygen.postgresql.org/procarray_8c_source.html)
+4. [Bruce Momjian:  Inside PostgreSQL Shared Memory](http://www.slideshare.net/PostgresOpen/inside-shmem)
+5. [PostgreSQL: pg\_locks](http://www.postgresql.org/docs/9.3/static/view-pg-locks.html)
+6. [PGBouncer](http://pgfoundry.org/projects/pgbouncer/)
+7. [PostgreSQL Wiki: PGBouncer](http://wiki.postgresql.org/wiki/PgBouncer)
 8. [PostgreSQL: Connections and Authentication](http://www.postgresql.org/docs/9.3/static/runtime-config-connection.html#GUC-MAX-CONNECTIONS)
-9. [PostgreSQL Wiki: Number of Database Connections](http://wiki.postgresql.org/wiki/Number_Of_Database_Connections)<br/>
-10. [Cybertec: max\_connections - Performance impacts](http://www.cybertec.at/max_connections-performance-impacts/)<br/>
+9. [PostgreSQL Wiki: Number of Database Connections](http://wiki.postgresql.org/wiki/Number_Of_Database_Connections)
+10. [Cybertec: max\_connections - Performance impacts](http://www.cybertec.at/max_connections-performance-impacts/)
