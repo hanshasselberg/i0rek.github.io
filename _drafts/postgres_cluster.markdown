@@ -6,13 +6,13 @@ date:   2014-02-19 11:52:00
 
 __TLDR;__ `CLUSTER table_name USING index` can greatly increase performance but is hard to maintain.
 
-The CLUSTER<sup>1</sup> documentation is great and it covers the technical details very well. You have to read all of it if you intend to use it. This post explains why and how I'm using it.
+The `CLUSTER`<sup>1</sup> documentation is great and it covers the technical details very well. You have to read all of it if you intend to use it. This post explains why and how I'm using clustered tables.
 
 ### Background
 
 I'm preparing the migration of our tasks PostgreSQL 9.1 database to a PostgreSQL 9.3 database. We're switching to a hosted database instead of running our own server because we're not good at operating database servers. The servers we host our database on are huge machines: 2 [hi.4xlarge](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage_instances.html) instances. This is unfortunate because they can deal with a lot of crap. We can throw everything at them. I want to stop doing that and my goal is to migrate the database to 1 [db.m2.2xlarge](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html) instances with 1000 provisioned IOPS. 
 
-As you probably noticed there is quite a big difference between 2 hi.4xlarge and 1 db.m1.xlarge. For example has the latter 2*120 times less provisioned IOPS - the resource we struggle with. I set this goal because I believe it is realistic and that we only need these big machines at the moment because we're doing it wrong.
+As you probably noticed there is quite a big difference between 2 hi.4xlarge and 1 db.m1.xlarge. For example has the latter 2*120 times less provisioned IOPS - the resource we struggle with the most. I set this goal because I believe it is realistic and that we only need these big machines because we're doing it wrong.
 
 This blog post explains why clustering the table was crucial to archiving my goal!
 
@@ -45,7 +45,7 @@ Total runtime: 2478.740 ms
 (4 rows)
 ```
 
-Now lets repeat the same query on a clustered table:
+Now lets repeat the same query on a clustered table which has the schema and data as tasks:
 
 ```
 CLUSTER TABLE tasks_clustered USING index_list_id;
@@ -67,10 +67,9 @@ What has happened? That was my question exacactly when I was experimenting with 
 
 > When a table is clustered, it is physically reordered based on the index information.<sup>1</sup>
 
-A clustered table doesn't help when querying rows randomly. But it can greatly increase performance when you query a range of index values or a single index value with multiple values! 
-Because when the queried data is in one place on the disk.
+A clustered table doesn't help when querying rows randomly. It can greatly increase performance when you query a range of index values or a single index value with multiple entries because the queried data is in one place on the disk.
 
-Looking back at our query `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`, we can now explain why the clustered table is so much faster! The tasks are grouped together on the disk according to their list id. PostgreSQL can read every lists tasks from disk without jumping around. Thats fast and convinient! Whereas for the unclustered table the tasks for each list are spread across the the disk.
+Looking back at our query `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`, it is clear why the clustered table is so much faster! The tasks are grouped together on the disk according to their list id. PostgreSQL can read every lists tasks from disk without jumping around. Thats fast and convinient! Whereas for the unclustered table the tasks for each list are spread across the the disk.
 
 ### Maintenance 
 
@@ -92,16 +91,12 @@ I believe another possibility is to use pg_reorg<sup>?</sup> if you're able to u
 
 ### Fin
 
-It is hard to maintain a clustered table but I'm still amazed by its impact and benefits! Clustering seems to be the solution for tables which suffer from too many reads from queries on a foreign key!
+It is hard to maintain a clustered table but I'm still amazed by its impact and benefits! Clustering seems to be the solution for tables which suffer from too many reads from queries on a foreign key! 
 
-I would love to hear about experiences with clustering and the techniques involved maintaing it!
+I would love to hear about experiences with clustering and the techniques involved maintaining it!
 
 ### Acknowledgements
 
-### Rand
-
-* pg_reorg
-* replica
 
 
 ### Sources
