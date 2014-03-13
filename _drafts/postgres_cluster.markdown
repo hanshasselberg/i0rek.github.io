@@ -61,9 +61,9 @@ Total runtime: 80.665 ms
 (4 rows)
 ```
 
-You can look at the full queries and query plans here: [full explain](http://www.example.com). As you can see the query was >30 times faster on the clustered table because significantly less buffers were needed by PostgreSQL to respond.
+You can look at the full queries and query plans in a seperate gist<sup>?</sup>. As you can see the query was >30 times faster on the clustered table because significantly less buffers were needed by PostgreSQL to respond.
 
-What has happened? That was my question exacactly when I was experimenting with the data some time ago. What is 'CLUSTER' doing anyways?
+What has happened? That was my question exacactly when I was experimenting with the data some time ago. What is `CLUSTER table` doing anyways?
 
 > When a table is clustered, it is physically reordered based on the index information.<sup>1</sup>
 
@@ -76,8 +76,25 @@ Looking back at our query `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`, we c
 
 While the benefits of a clustered table are obvious there things you need to consider before using it. 
 
-1. `CLUSTER table_name` is a one-time operation, and updates, inserts, or deletes will fragment the table again. Depending on your use case you're probably forced to cluster your table regularly to maintain the order.
-1. `CLUSTER tables_name` issues an ExclusiveLock<sup>?</sup>, and as a result you can neither read nor write while clustering.
+1. `CLUSTER table` is a one-time operation<sup>1</sup>, and updates, inserts, or deletes will fragment the table again. Depending on your use case you're probably forced to cluster your table regularly to maintain the order.
+1. `CLUSTER table` issues an ExclusiveLock<sup>1?</sup>, and as a result you can neither read nor write while clustering.
+
+While there is no way to do something about 1. there are different ways to approach 2. Clustering needs at least the size of the table plus the indexes of free space because a temporary table with the same data and with the same indexes is created. Depending on how much free space you have at hand and how your data is structured there is a way to work around the Exclusive Lock to some extend. In reality our tasks table also has the fields `created_at` and `updated_at`, and we are able to tell what has changed since a certain time. We can work around the lock like that:
+
+1. copy the original table
+2. cluster the new table
+3. update the new table
+4. use new table.
+
+This technique needs even more free space at least twice the amount of the table and its indexes. It is only in my head at the moment, and I haven't done it in production. I'll have to do some testing around that.
+
+I believe another possibility is to use pg_reorg<sup>?</sup> if you're able to use your own extensions. It seems to be able to cluster a table, but haven't played around with it. AWS RDS doesn't allow custom extensions and that means it is not an option for us. 
+
+### Fin
+
+It is hard to maintain a clustered table but I'm still amazed by its impact and benefits! Clustering seems to be the solution for tables which suffer from too many reads from queries on a foreign key!
+
+I would love to hear about experiences with clustering and the techniques involved maintaing it!
 
 ### Acknowledgements
 
