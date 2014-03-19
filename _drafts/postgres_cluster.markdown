@@ -101,5 +101,6 @@ I would like to thank my [Torsten](http://torsten.io) for working with me on the
 3. [Complete Query and Explain from example](https://gist.github.com/i0rek/163f59d850ac7a74157b)
 4. [PostgreSQL: Locks](http://www.postgresql.org/docs/current/static/sql-lock.html)
 5. [PGFoundary: pg_reorg](http://reorg.projects.pgfoundry.org/pg_reorg.html)
-6. [AWS RDS Postgres](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html)1. [How does CLUSTER ON improve index performance](http://www.postgresonline.com/journal/index.php?/archives/10-How-does-CLUSTER-ON-improve-index-performance.html)
+6. [AWS RDS PostgreSQL](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html)
+7. [How does CLUSTER ON improve index performance](http://www.postgresonline.com/journal/index.php?/archives/10-How-does-CLUSTER-ON-improve-index-performance.html)
 7. [Lock-free clustering of large PostgreSQL data sets](http://blog.chrishowie.com/2013/02/15/lock-free-clustering-of-large-postgresql-data-sets)
