@@ -92,7 +92,7 @@ I would love to hear about experiences with clustering and the techniques involv
 
 ### Acknowledgements
 
-I would like to thank my [Torsten](http://torsten.io) for working with me on the database stuff and helping me write this blog post.
+I would like to thank [Torsten](http://torsten.io) for working with me on the database stuff and helping me write this blog post.
 
 ### Sources
 
