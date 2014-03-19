@@ -31,7 +31,7 @@ CREATE INDEX index_list_id on tasks(list_id);
 
 I generated 500,000,000 tasks in 500,000 lists and every 1000th tasks belongs to the same list.
 
-The most frequent type of query is `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`. Unfortunately this query is rather expensive especially when querying for many lists. The query I'm using for demonstration includes every 5000th list - 100 in total:
+The most frequent type of query is `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`. Unfortunately this query is rather expensive especially when querying for many lists. The query I'm using for demonstration includes every 5000th list&mdash;100 in total:
 
 ```
 EXPLAIN (ANALYZE, BUFFERS) SELECT * 
@@ -61,21 +61,21 @@ Total runtime: 80.665 ms
 (4 rows)
 ```
 
-You can look at the full queries and query plans in a seperate gist<sup>3</sup>. As you can see the query was >30 times faster on the clustered table because significantly less buffers were needed by PostgreSQL to respond.
+You can look at the full queries and query plans in a separate gist<sup>3</sup>. As you can see the query was >30 times faster on the clustered table because significantly less buffers were needed by PostgreSQL to respond.
 
-What has happened? That was my question exacactly when I was experimenting with the data some time ago. What is `CLUSTER` doing anyways?
+What has happened? That was my question exactly when I was experimenting with the data some time ago. What is `CLUSTER` doing?
 
 > When a table is clustered, it is physically reordered based on the index information.<sup>1</sup>
 
 A clustered table doesn't help when querying rows randomly. It can greatly increase performance when you query a range of index values or a single index value with multiple entries because the queried data is in one place on the disk.
 
-Looking back at our query `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`, it is clear why the clustered table is so much faster! The tasks are grouped together on the disk according to their list id. PostgreSQL can read every lists tasks from disk without jumping around. Thats fast and convinient! Whereas for the unclustered table the tasks for each list are spread across the the disk.
+Looking back at our query `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`, it is clear why the clustered table is so much faster! The tasks are grouped together on the disk according to their list id. PostgreSQL can read every lists tasks from disk without jumping around. That is fast and convenient! Whereas for the unclustered table the tasks for each list are spread across the the disk.
 
 ### Maintenance 
 
 While the benefits of a clustered table are obvious there are things you need to consider before using it. Clustering is a one-time operation<sup>1</sup>, and updates, inserts, or deletes will fragment the table again. Depending on your use case you're probably forced to cluster your table regularly to maintain the order. Clustering issues an ExclusiveLock<sup>1</sup><sup>4</sup>, and as a result you can neither read nor write while clustering.
 
-When dealing with clustered tables you should set fillfactor<sup>2</sup> appropriately because it will avoid fragmentation. This depends of course on your usecase.
+When dealing with clustered tables you should set fillfactor<sup>2</sup> appropriately because it will avoid fragmentation. This depends of course on your use case.
 
 I believe another possibility to cluster a table is to use pg\_reorg which:
 
