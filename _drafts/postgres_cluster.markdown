@@ -81,7 +81,7 @@ I believe another possibility to cluster a table is to use pg\_reorg which:
 
 > Reorganize tables in PostgreSQL databases without any locks.<sup>5</sup>
 
-It looks very promising, but I haven't played around with it because you cannot install custom PostgreSQL extensions in AWS RDS<sup>6</sup>.
+It looks promising, but I haven't played around with it because there are only a few extensions available on AWS RDS PostgreSQL<sup>6</sup>.
 
 
 ### Fin
