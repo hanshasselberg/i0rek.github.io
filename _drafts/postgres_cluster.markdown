@@ -12,7 +12,7 @@ The `CLUSTER`<sup>1</sup> documentation is great and it covers the technical det
 
 I'm preparing the migration of our tasks PostgreSQL 9.1 database to a PostgreSQL 9.3 database. We're switching to a hosted database instead of running our own server because we're not good at operating database servers. The servers we host our database on are huge machines: 2 [hi.4xlarge](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage_instances.html) instances. This is unfortunate because they can deal with a lot of crap. We can throw everything at them. I want to stop doing that and my goal is to migrate the database to 1 [db.m2.2xlarge](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html) instances with 1000 provisioned IOPS. 
 
-As you probably noticed there is quite a big difference between 2 hi.4xlarge and 1 db.m1.xlarge. For example has the latter 2*120 times less provisioned IOPS - the resource we struggle with the most. I set this goal because I believe it is realistic and that we only need these big machines because we're doing it wrong.
+As you probably noticed there is quite a big difference between 2 hi.4xlarge and 1 db.m1.xlarge. For example has the latter 2\*120 times less IOPS - the resource we struggle with the most. I set this goal because I believe it is realistic and that we only need these big machines because we're doing it wrong.
 
 This blog post explains why clustering the table was crucial to archiving my goal!
 
@@ -61,9 +61,9 @@ Total runtime: 80.665 ms
 (4 rows)
 ```
 
-You can look at the full queries and query plans in a seperate gist<sup>?</sup>. As you can see the query was >30 times faster on the clustered table because significantly less buffers were needed by PostgreSQL to respond.
+You can look at the full queries and query plans in a seperate gist<sup>3</sup>. As you can see the query was >30 times faster on the clustered table because significantly less buffers were needed by PostgreSQL to respond.
 
-What has happened? That was my question exacactly when I was experimenting with the data some time ago. What is `CLUSTER table` doing anyways?
+What has happened? That was my question exacactly when I was experimenting with the data some time ago. What is `CLUSTER` doing anyways?
 
 > When a table is clustered, it is physically reordered based on the index information.<sup>1</sup>
 
@@ -73,21 +73,16 @@ Looking back at our query `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`, it i
 
 ### Maintenance 
 
-While the benefits of a clustered table are obvious there things you need to consider before using it. 
+While the benefits of a clustered table are obvious there are things you need to consider before using it. Clustering is a one-time operation<sup>1</sup>, and updates, inserts, or deletes will fragment the table again. Depending on your use case you're probably forced to cluster your table regularly to maintain the order. Clustering issues an ExclusiveLock<sup>1</sup><sup>4</sup>, and as a result you can neither read nor write while clustering.
 
-1. `CLUSTER table` is a one-time operation<sup>1</sup>, and updates, inserts, or deletes will fragment the table again. Depending on your use case you're probably forced to cluster your table regularly to maintain the order.
-1. `CLUSTER table` issues an ExclusiveLock<sup>1?</sup>, and as a result you can neither read nor write while clustering.
+When dealing with clustered tables you should set fillfactor<sup>2</sup> appropriately because it will avoid fragmentation. This depends of course on your usecase.
 
-While there is no way to do something about 1. there are different ways to approach 2. Clustering needs at least the size of the table plus the indexes of free space because a temporary table with the same data and with the same indexes is created. Depending on how much free space you have at hand and how your data is structured there is a way to work around the Exclusive Lock to some extend. In reality our tasks table also has the fields `created_at` and `updated_at`, and we are able to tell what has changed since a certain time. We can work around the lock like that:
+I believe another possibility to cluster a table is to use pg\_reorg which:
 
-1. copy the original table
-2. cluster the new table
-3. update the new table
-4. use new table.
+> Reorganize tables in PostgreSQL databases without any locks.<sup>5</sup>
 
-This technique needs even more free space at least twice the amount of the table and its indexes. It is only in my head at the moment, and I haven't done it in production. I'll have to do some testing around that.
+It looks very promising, but I haven't played around with it because you cannot install custom PostgreSQL extensions in AWS RDS<sup>6</sup>.
 
-I believe another possibility is to use pg_reorg<sup>?</sup> if you're able to use your own extensions. It seems to be able to cluster a table, but haven't played around with it. AWS RDS doesn't allow custom extensions and that means it is not an option for us. 
 
 ### Fin
 
@@ -97,13 +92,14 @@ I would love to hear about experiences with clustering and the techniques involv
 
 ### Acknowledgements
 
-
+I would like to thank my [Torsten](http://torsten.io) for working with me on the database stuff and helping me write this blog post.
 
 ### Sources
 
-1. cluster http://www.postgresql.org/docs/9.3/static/sql-cluster.html
-2. http://www.postgresonline.com/journal/index.php?/archives/10-How-does-CLUSTER-ON-improve-index-performance.html
-3. fillfactor: http://www.postgresql.org/docs/current/static/sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS
-4. http://blog.chrishowie.com/2013/02/15/lock-free-clustering-of-large-postgresql-data-sets
-5. http://use-the-index-luke.com/sql/clustering/index-organized-clustered-index
-6. https://gist.github.com/i0rek/163f59d850ac7a74157b
+1. [PostgreSQL: Cluster](http://www.postgresql.org/docs/9.3/static/sql-cluster.html)
+2. [PostgreSQL: Fillfactor](http://www.postgresql.org/docs/current/static/sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS)
+3. [Complete Query and Explain from example](https://gist.github.com/i0rek/163f59d850ac7a74157b)
+4. [PostgreSQL: Locks](http://www.postgresql.org/docs/current/static/sql-lock.html)
+5. [PGFoundary: pg_reorg](http://reorg.projects.pgfoundry.org/pg_reorg.html)
+6. [AWS RDS Postgres](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html)1. [How does CLUSTER ON improve index performance](http://www.postgresonline.com/journal/index.php?/archives/10-How-does-CLUSTER-ON-improve-index-performance.html)
+7. [Lock-free clustering of large PostgreSQL data sets](http://blog.chrishowie.com/2013/02/15/lock-free-clustering-of-large-postgresql-data-sets)
