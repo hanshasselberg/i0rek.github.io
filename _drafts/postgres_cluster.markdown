@@ -75,7 +75,7 @@ Looking back at our query `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`, it i
 
 While the benefits of a clustered table are obvious there are things you need to consider before using it. Clustering is a one-time operation<sup>1</sup>, and updates, inserts, or deletes will fragment the table again. Depending on your use case you're probably forced to cluster your table regularly to maintain the order. Clustering issues an ExclusiveLock<sup>1</sup><sup>4</sup>, and as a result you can neither read nor write while clustering.
 
-When dealing with clustered tables you should set fillfactor<sup>2</sup> appropriately because it will avoid fragmentation. This depends of course on your use case.
+When dealing with clustered tables you should set fillfactor<sup>2</sup> appropriately. It will avoid fragmentation by enabling PostgreSQL to put the updated row on the same page as the original one.
 
 I believe another possibility to cluster a table is to use pg\_reorg which:
 
