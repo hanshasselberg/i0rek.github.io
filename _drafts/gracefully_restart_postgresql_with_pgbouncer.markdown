@@ -10,7 +10,7 @@ Restarting databases is never pleasant but sometimes there is no other option. W
 
 ### Pause and Resume
 
-I recently stumbled over PGBouncers `PAUSE` and `RESUME` commands. `PAUSE` will wait for every query to finish and close its own connections to the database. `RESUME` will reconnect to the database and run the queries issued while being paused. Both commands are transparent to the client, they don't need to reconnect.
+I recently stumbled over PGBouncers `PAUSE` and `RESUME` commands. `PAUSE` will wait for every query to finish and close its own connections to the database. `RESUME` will reconnect to the database and run the queries issued while being paused. Both commands are transparent to the client, they don't need to reconnect. You can `PAUSE` your database, restart it, and `RESUME` it and nobody will notice!
 
 ### Fin
 
