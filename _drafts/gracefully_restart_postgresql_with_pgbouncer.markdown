@@ -18,4 +18,4 @@ This is just a little thing but it made my life better. Maybe it helps you too.
 
 ### Sources
 
-1. [PGBuncer: Usage](http://pgbouncer.projects.pgfoundry.org/doc/usage.html)
+1. [PGBuncer: Usage](http://pgbouncer.projects.pgfoundry.org/doc/usage.html#_process_controlling_commands)
