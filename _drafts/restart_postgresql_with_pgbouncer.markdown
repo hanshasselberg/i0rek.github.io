@@ -6,7 +6,7 @@ date:   2014-02-19 11:52:00
 
 ## Background
 
-Restarting databases is never pleasant but sometimes there is no other option. If you happen to use PostgreSQL with PGBouncer there is a way to do that with as little interruption as possible. When restarting the database clients are loosing their connection and need to reconnect. Rails in our case doesn't do that automatically.
+Restarting databases is never pleasant but sometimes there is no other option. When restarting the database clients are loosing their connection and need to reconnect. Rails in our case doesn't do that automatically. If you happen to use PostgreSQL with PGBouncer there is a way to do that with as little interruption as possible.
 
 ## Pause and Resume 
 
