@@ -6,13 +6,13 @@ date:   2014-02-19 11:52:00
 
 __TLDR;__ `CLUSTER table_name USING index` can greatly increase performance but is hard to maintain.
 
-The `CLUSTER`<sup>1</sup> documentation is great and it covers the technical details very well. You have to read all of it if you intend to use it. This post explains why and how I'm using clustered tables.
+The `CLUSTER`<sup>1</sup> documentation is great, and it covers the technical details very well. You have to read all of it if you intend to use it. This post explains why and how I'm using clustered tables.
 
 ### Background
 
-I'm preparing the migration of our tasks PostgreSQL 9.1 database to a PostgreSQL 9.3 database. We're switching to a hosted database instead of running our own server because we're not good at operating database servers. The servers we host our database on are huge machines: 2 [hi.4xlarge](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage_instances.html) instances. This is unfortunate because they can deal with a lot of crap. We can throw everything at them. I want to stop doing that and my goal is to migrate the database to 1 [db.m2.2xlarge](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html) instances with 1000 provisioned IOPS. 
+A while back I was preparing the migration of our tasks PostgreSQL 9.1 database to a PostgreSQL 9.3 database. We were switching to a hosted database instead of running our own server, because, frankly, we're not good at operating database servers. The servers we were using to host our database were on huge machines: 2 [hi.4xlarge](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage_instances.html) instances. We could throw everything at them and I wanted to stop doing that. My goal was to migrate the database to 1 [db.m2.2xlarge](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html) instance with 1000 provisioned IOPS. 
 
-As you probably noticed there is quite a big difference between 2 hi.4xlarge and 1 db.m1.xlarge. For example has the latter 2\*120 times less IOPS - the resource we struggle with the most. I set this goal because I believe it is realistic and that we only need these big machines because we're doing it wrong.
+As you probably noticed there is quite a big difference between 2 hi.4xlarge and 1 db.m1.xlarge. For example the latter has 2\*120 times less IOPS - the resource we struggle with the most. I set this goal because I believed it was realistic, and that we only needed these big machines because we were doing it wrong.
 
 This blog post explains why clustering the table was crucial to archiving my goal!
 
@@ -63,17 +63,17 @@ Total runtime: 80.665 ms
 
 You can look at the full queries and query plans in a separate gist<sup>3</sup>. As you can see the query was >30 times faster on the clustered table because significantly less buffers were needed by PostgreSQL to respond.
 
-What has happened? That was my question exactly when I was experimenting with the data some time ago. What is `CLUSTER` doing?
+What happened? That was my question exactly when I was experimenting with the data some time ago. What is `CLUSTER` actually doing?
 
 > When a table is clustered, it is physically reordered based on the index information.<sup>1</sup>
 
 A clustered table doesn't help when querying rows randomly. It can greatly increase performance when you query a range of index values or a single index value with multiple entries because the queried data is in one place on the disk.
 
-Looking back at our query `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`, it is clear why the clustered table is so much faster! The tasks are grouped together on the disk according to their list id. PostgreSQL can read every lists tasks from disk without jumping around. That is fast and convenient! Whereas for the unclustered table the tasks for each list are spread across the the disk.
+Looking back at our query `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`, it is clear why the clustered table is so much faster! The tasks are grouped together on the disk according to their list id. PostgreSQL can read every list's tasks from disk without jumping around. Fast and convenient! For the unclustered table, however, the tasks for each list are spread across the the disk.
 
 ### Maintenance 
 
-While the benefits of a clustered table are obvious there are things you need to consider before using it. Clustering is a one-time operation<sup>1</sup>, and updates, inserts, or deletes will fragment the table again. Depending on your use case you're probably forced to cluster your table regularly to maintain the order. Clustering issues an ExclusiveLock<sup>1,4</sup>, and as a result you can neither read nor write while clustering.
+While the benefits of a clustered table are obvious, there are things you need to consider before using it. Clustering is a one-time operation<sup>1</sup>, and updates, inserts, or deletes will fragment the table again. Depending on your use case you will probably be forced to cluster your table regularly to maintain the order. Clustering issues an ExclusiveLock<sup>1,4</sup>, and as a result you can neither read nor write while clustering.
 
 When dealing with clustered tables you should set fillfactor<sup>2</sup> appropriately. It will avoid fragmentation by enabling PostgreSQL to put the updated row on the same page as the original one.
 
@@ -86,9 +86,9 @@ It looks promising, but I haven't played around with it because there are only a
 
 ### Fin
 
-It is hard to maintain a clustered table but I'm still amazed by its impact and benefits! Clustering seems to be the solution for tables which suffer from too many reads from queries on a foreign key! 
+It is hard to maintain a clustered table, but I'm still amazed by its impact and benefits. Clustering seems to be the solution for tables which suffer from too many reads from queries on a foreign key. 
 
-I would love to hear about experiences with clustering and the techniques involved maintaining it!
+I would love to hear about your experiences with clustering and the techniques you used to maintain it!
 
 ### Acknowledgements
 
