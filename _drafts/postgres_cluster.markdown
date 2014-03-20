@@ -10,9 +10,9 @@ The `CLUSTER`<sup>1</sup> documentation is great, and it covers the technical de
 
 ### Background
 
-A while back I was preparing the migration of our tasks PostgreSQL 9.1 database to a PostgreSQL 9.3 database. We were switching to a hosted database instead of running our own server, because, frankly, we're not good at operating database servers. The servers we were using to host our database were on huge machines: 2 [hi.4xlarge](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage_instances.html) instances. We could throw everything at them and I wanted to stop doing that. My goal was to migrate the database to 1 [db.m2.2xlarge](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html) instance with 1000 provisioned IOPS. 
+I'm currently preparing the migration the migration of our tasks PostgreSQL 9.1 database to a PostgreSQL 9.3 database. We are switching to a hosted database instead of running our own server, because, frankly, we're not good at operating database servers. The servers we are using to host our database were on huge machines: 2 [hi.4xlarge](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage_instances.html) instances. We can throw everything at them and I want to stop doing that. My goal is to migrate the database to 1 [db.m2.2xlarge](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html) instance with 1000 provisioned IOPS. 
 
-As you probably noticed there is quite a big difference between 2 hi.4xlarge and 1 db.m1.xlarge. For example the latter has 2\*120 times less IOPS - the resource we struggle with the most. I set this goal because I believed it was realistic, and that we only needed these big machines because we were doing it wrong.
+As you probably noticed there is quite a big difference between 2 hi.4xlarge and 1 db.m1.xlarge. For example the latter has 2\*120 times less IOPS - the resource we struggle with the most. I set this goal because I believe it is realistic, and that we only need these big machines because we are doing it wrong.
 
 This blog post explains why clustering the table was crucial to archiving my goal!
 
