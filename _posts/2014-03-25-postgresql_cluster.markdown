@@ -69,7 +69,7 @@ What happened? That was my question exactly when I was experimenting with the da
 
 A clustered table doesn't help when querying rows randomly. It can greatly increase performance when you query a range of index values or a single index value with multiple entries because the queried data is in one place on the disk.
 
-Looking back at our query `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`, it is clear why the clustered table is so much faster! The tasks are grouped together on the disk according to their list id. PostgreSQL can read every list's tasks from disk without jumping around. Fast and convenient! For the unclustered table, however, the tasks for each list are spread across the the disk.
+Looking back at our query `SELECT * FROM tasks WHERE list_id IN (?, ?, ?)`, it is clear why the clustered table is so much faster! The tasks are grouped together on the disk according to their list id. PostgreSQL can read every list's tasks from disk without jumping around. Fast and convenient! For the unclustered table, however, the tasks for each list are spread across the disk.
 
 ### Maintenance 
 
