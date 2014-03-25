@@ -1,10 +1,10 @@
 ---
 layout: post
-title:  "PostgreSQL: CLUSTER table_name USING index;"
+title:  "PostgreSQL: CLUSTER table USING index;"
 date:   2014-03-25 10:18:00
 ---
 
-__TLDR;__ `CLUSTER table_name USING index` can greatly increase performance but is hard to maintain.
+__TLDR;__ `CLUSTER table USING index` can greatly increase performance but is hard to maintain.
 
 The `CLUSTER`<sup>1</sup> documentation is great, and it covers the technical details very well. You have to read all of it if you intend to use it. This post explains why and how I'm using clustered tables.
 
