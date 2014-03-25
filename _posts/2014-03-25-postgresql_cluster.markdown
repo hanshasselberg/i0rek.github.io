@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "PostgreSQL: CLUSTER table_name USING index;"
-date:   2014-02-19 11:52:00
+date:   2014-03-25 10:18:00
 ---
 
 __TLDR;__ `CLUSTER table_name USING index` can greatly increase performance but is hard to maintain.
