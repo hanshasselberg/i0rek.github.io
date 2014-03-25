@@ -10,7 +10,7 @@ The `CLUSTER`<sup>1</sup> documentation is great, and it covers the technical de
 
 ### Background
 
-I'm currently preparing the migration the migration of our tasks PostgreSQL 9.1 database to a PostgreSQL 9.3 database. We are switching to a hosted database instead of running our own server, because, frankly, we're not good at operating database servers. The servers we are using to host our database were on huge machines: 2 [hi.4xlarge](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage_instances.html) instances. We can throw everything at them and I want to stop doing that. My goal is to migrate the database to 1 [db.m2.2xlarge](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html) instance with 1000 provisioned IOPS. 
+I'm currently preparing the migration the migration of our tasks PostgreSQL 9.1 database to a PostgreSQL 9.3 database. We are switching to a hosted database instead of running our own server, because, frankly, we're not good at operating database servers. The servers we are using to host our database were on huge machines: 2 hi.4xlarge<sup>7</sup> instances. We can throw everything at them and I want to stop doing that. My goal is to migrate the database to 1 db.m2.2xlarge<sup>8</sup> instance with 1000 provisioned IOPS. 
 
 As you probably noticed there is quite a big difference between 2 hi.4xlarge and 1 db.m1.xlarge. For example the latter has 2\*120 times less IOPS - the resource we struggle with the most. I set this goal because I believe it is realistic, and that we only need these big machines because we are doing it wrong.
 
@@ -102,5 +102,7 @@ I would like to thank [Torsten](http://torsten.io) for working with me on the da
 4. [PostgreSQL: Locks](http://www.postgresql.org/docs/current/static/sql-lock.html)
 5. [PGFoundary: pg_reorg](http://reorg.projects.pgfoundry.org/pg_reorg.html)
 6. [AWS RDS PostgreSQL](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html)
-7. [How does CLUSTER ON improve index performance](http://www.postgresonline.com/journal/index.php?/archives/10-How-does-CLUSTER-ON-improve-index-performance.html)
-7. [Lock-free clustering of large PostgreSQL data sets](http://blog.chrishowie.com/2013/02/15/lock-free-clustering-of-large-postgresql-data-sets)
+7. [AWS EC2: hi.4xlarge](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage_instances.html)
+8. [AWS RDS: db.m2.2xlarge](http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html)
+9. [How does CLUSTER ON improve index performance](http://www.postgresonline.com/journal/index.php?/archives/10-How-does-CLUSTER-ON-improve-index-performance.html)
+10. [Lock-free clustering of large PostgreSQL data sets](http://blog.chrishowie.com/2013/02/15/lock-free-clustering-of-large-postgresql-data-sets)
