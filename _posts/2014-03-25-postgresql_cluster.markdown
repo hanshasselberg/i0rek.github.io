@@ -94,9 +94,6 @@ I would love to hear about your experiences with clustering and the techniques y
 
 I would like to thank [Torsten](http://torsten.io) for working with me on the database stuff and helping me write this blog post. I also want to thank [Ryan](http://rylev.github.io/words/) for proofreading this blog post! <3
 
-
-Edit: There is a [discussion](https://news.ycombinator.com/item?id=7464749) on Hackernews.
-
 ### Sources
 
 1. [PostgreSQL: Cluster](http://www.postgresql.org/docs/9.3/static/sql-cluster.html)
