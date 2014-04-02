@@ -19,4 +19,4 @@ This is just a little thing but it made my life better. Maybe it helps you too.
 ### Sources
 
 1. [Costs of a PostgreSQL connection](http://hans.io/blog/2014/02/19/postgresql_connection/index.html)
-1. [PGBuncer: Usage](http://pgbouncer.projects.pgfoundry.org/doc/usage.html#_process_controlling_commands)
+1. [PGBouncer: Usage](http://pgbouncer.projects.pgfoundry.org/doc/usage.html#_process_controlling_commands)
