@@ -4,8 +4,8 @@ title: Hans Hasselberg
 ---
 
 <h2>Articles</h2>
-<ul class="posts">
+<table>
   {% for post in site.posts %}
-    <li>{{ post.date | date_to_string }}&nbsp;&raquo;&nbsp;<a href="{{ post.url }}/index.html">{{ post.title }}</a></li>
+    <tr><td>{{ post.date | date_to_string }}</td><td>&raquo;&nbsp;<a href="{{ post.url }}/index.html">{{ post.title }}</a></td></tr>
   {% endfor %}
-</ul>
+</table>
