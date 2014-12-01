@@ -21,7 +21,7 @@ This is a really strange and scary thing. I only discovered it by going through 
 
 ### 2. Unrelieable joining and leaving of nodes
 
-Whenever I inspected `consul monitor` pages of output were flying by and I thought that is normal. I learned it is not. I was running into a problem  and after giving it some thought Armon from Hashicorp was able to identify and [fix](https://github.com/hashicorp/memberlist/commit/63ef41a08f845463ae968b58ca4927666ccc1f4e) it. Turns out the Serf event bus was saturated. The lesson here is that you should always be [monitoring](https://consul.io/docs/agent/telemetry.html) because then the problem would’ve been easy to spot. I should’ve done that in the first place and you should too.
+Whenever I inspected `consul monitor` pages of output were flying by and I thought that is normal. I learned it is not. I was running into a problem  and after giving it some thought [Armon](https://twitter.com/armon) from Hashicorp was able to identify and [fix](https://github.com/hashicorp/memberlist/commit/63ef41a08f845463ae968b58ca4927666ccc1f4e) it. Turns out the Serf event bus was saturated. The lesson here is that you should always be [monitoring](https://consul.io/docs/agent/telemetry.html) because then the problem would’ve been easy to spot. I should’ve done that in the first place and you should too.
 
 ## Configuration
 
