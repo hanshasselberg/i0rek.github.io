@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "PostgreSQLs partial indexes are very useful!“
+title:  "PostgreSQLs partial indexes are very useful!"
 date:   2014-03-25 10:18:00
 ---
 

@@ -1,12 +1,16 @@
-# Setting up Consul on AWS
+---
+layout: post
+title:  "Setting up Consul on AWS"
+date:   2014-12-02 10:18:00
+---
 
-## Purpose 
+## Purpose
 
 I wanted to extend the [6Wunderkinder](http://www.6wunderkinder.com/) infrastructure with service discovery and improve the health checks. For these goals [Consul](https://consul.io) seemed like a very good fit. Getting the [key/vaule store](https://consul.io/docs/agent/http.html#kv) was just the icing. In the following, I will explain the setup, things I’ve run into and share the configuration. I was looking for such a description myself and couldn’t find one.
 
 ## First steps with Consul
 
-The first feature of Consul I used was the KV store.  During provisioning of the instances I use Consul to set up credentials for database access. It was running for quite some time before I started integrating services and health checks. When I did that I noticed two problems: 
+The first feature of Consul I used was the KV store.  During provisioning of the instances I use Consul to set up credentials for database access. It was running for quite some time before I started integrating services and health checks. When I did that I noticed two problems:
 
 1. Foreign nodes in the cluster
 2. Unrelieable joining and leaving of nodes
@@ -25,4 +29,4 @@ As promised I’ve uploaded the [configuration](https://gist.github.com/i0rek/d8
 
 ## Conclusion
 
-The cluster is stable and everything works as expected. I am looking forward to put Consul to its use: orchestration. Thanks for reading.  
+The cluster is stable and everything works as expected. I am looking forward to put Consul to its use: orchestration. Thanks for reading.
