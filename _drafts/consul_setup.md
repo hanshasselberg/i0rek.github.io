@@ -29,4 +29,4 @@ As promised I’ve uploaded the [configuration](https://gist.github.com/i0rek/d8
 
 ## Conclusion
 
-The cluster is stable and everything works as expected. I am looking forward to put Consul to its use: orchestration. Thanks for reading.
+The cluster is stable and everything works as expected. I am looking forward to put Consul to its use: orchestration.I want to thank [Torsten](http://torsten.io) for his great feedback on this post! Thanks for reading.
