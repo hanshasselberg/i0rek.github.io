@@ -1,0 +1,20 @@
+---
+layout: default
+name: Consul Nightly Builds
+title: Consul
+revisions:
+  - date: 03 Dec 2014
+    sha:  5887242db2ebaae6c6cb9dfe68bdf078f9c1eefd
+---
+
+<table>
+  {% for revision in page.revisions %}
+  {% assign rev = revision.sha %}
+  <tr>
+    <td>{{ revision.date }}</td>
+    <td>&raquo;&nbsp;<a href="https://github.com/hashicorp/consul/commit/{{ rev }}">{{ rev | truncate: 7, '' }}</a>: </td>
+    <td><a href="http://consul-nightly.s3-eu-west-1.amazonaws.com/{{ rev }}/linux-386">linux-386</a></td>
+    <td><a href="http://consul-nightly.s3-eu-west-1.amazonaws.com/{{ rev }}/linux-amd64">linux-amd64</a></td>
+  </tr>
+  {% endfor %}
+</table>
