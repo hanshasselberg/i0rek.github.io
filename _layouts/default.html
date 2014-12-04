@@ -34,7 +34,13 @@
   </head>
   <body>
     <header>
-        <h1>{{ site.name }}</h1>
+      <h1>
+        {% if page.name %}
+        {{ page.name }}
+        {% else %}
+        {{ site.name }}
+        {% endif %}
+      </h1>
     </header>
     <nav>
       <ul>
