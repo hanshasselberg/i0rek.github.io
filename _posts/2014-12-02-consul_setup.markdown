@@ -12,7 +12,7 @@ I wanted to extend the [6Wunderkinder](http://www.6wunderkinder.com/) infrastruc
 
 The first feature of Consul I used was the KV store. During provisioning of the instances I used Consul to set up credentials for database access. It was running for quite some time before I started integrating services and health checks. When I did that, I noticed two problems:
 
-1. Foreign nodes in the cluster
+1. Foreign nodes in the cluster __which turned out to be my fault__
 2. Unrelieable joining and leaving of nodes
 
 ### 1. Foreign nodes
