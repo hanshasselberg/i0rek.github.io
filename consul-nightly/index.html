@@ -26,10 +26,10 @@ revisions:
   - date: 03 Dec 2014
     sha:  5887242db2ebaae6c6cb9dfe68bdf078f9c1eefd
 archs:
-  - linux-386: Linux 32b
-  - linux-amd64: Linux 64b
-  - darwin-amd64: OS X
-  - freebsd-amd64: Freebsd
+  - "linux-386": Linux 32b
+  - "linux-amd64": Linux 64b
+  - "darwin-amd64": OS X
+  - "freebsd-amd64": Freebsd
 ---
 
 <br>
@@ -45,9 +45,10 @@ I am providing infrequent builds for <a href="https://consul.io">Consul</a> here
   <tr>
     <td>{{ revision.date }}</td>
     <td>&raquo;&nbsp;<a href="https://github.com/hashicorp/consul/commit/{{ rev }}">{{ rev | truncate: 7, '' }}</a>: </td>
-    {% for arch in page.archs %}
-    <td><a href="http://consul-nightly.s3-eu-west-1.amazonaws.com/{{ rev }}/{{ arch[0] }}">{{ arch[1] }}</a></td>
-    {% endfor %}
+    <td><a href="http://consul-nightly.s3-eu-west-1.amazonaws.com/{{ rev }}/linux-386">Linux 32b</a></td>
+    <td><a href="http://consul-nightly.s3-eu-west-1.amazonaws.com/{{ rev }}/linux-amd64">Linux 64b</a></td>
+    <td><a href="http://consul-nightly.s3-eu-west-1.amazonaws.com/{{ rev }}/darwin-amd64">OS X</a></td>
+    <td><a href="http://consul-nightly.s3-eu-west-1.amazonaws.com/{{ rev }}/freebsd-amd64">FreeBSD</a></td>
   </tr>
   {% endfor %}
 </table>
