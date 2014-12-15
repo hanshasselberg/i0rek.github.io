@@ -26,10 +26,10 @@ revisions:
   - date: 03 Dec 2014
     sha:  5887242db2ebaae6c6cb9dfe68bdf078f9c1eefd
 archs:
-  - linux-386
-  - linux-amd64
-  - darwin-amd64
-  - freebsd-amd64
+  - linux-386: Linux 32b
+  - linux-amd64: Linux 64b
+  - darwin-amd64: OS X
+  - freebsd-amd64: Freebsd
 ---
 
 <br>
@@ -46,7 +46,7 @@ I am providing infrequent builds for <a href="https://consul.io">Consul</a> here
     <td>{{ revision.date }}</td>
     <td>&raquo;&nbsp;<a href="https://github.com/hashicorp/consul/commit/{{ rev }}">{{ rev | truncate: 7, '' }}</a>: </td>
     {% for arch in page.archs %}
-    <td><a href="http://consul-nightly.s3-eu-west-1.amazonaws.com/{{ rev }}/{{ arch }}">{{ arch }}</a></td>
+    <td><a href="http://consul-nightly.s3-eu-west-1.amazonaws.com/{{ rev }}/{{ arch[0] }}">{{ arch[1] }}</a></td>
     {% endfor %}
   </tr>
   {% endfor %}
