@@ -45,7 +45,7 @@ I am providing infrequent builds for <a href="https://consul.io">Consul</a> here
   <tr>
     <td>{{ revision.date }}</td>
     <td>&raquo;&nbsp;<a href="https://github.com/hashicorp/consul/commit/{{ rev }}">{{ rev | truncate: 7, '' }}</a>: </td>
-    {% for arch in archs %}
+    {% for arch in page.archs %}
     <td><a href="http://consul-nightly.s3-eu-west-1.amazonaws.com/{{ rev }}/{{ arch }}">{{ arch }}</a></td>
     {% endfor %}
   </tr>
