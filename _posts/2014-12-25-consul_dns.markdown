@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  "Consul DNS Interface Exploration"
+date:   2014-12-25 10:12:00
 ---
 
 Recently I looked into Consul's [DNS Interface](https://consul.io/docs/agent/dns.html). It is a very nice feature, it lets you query for nodes or services via DNS. During my experiments I was running three Consul servers on [c3.large EC2 instances](https://aws.amazon.com/ec2/instance-types/#Compute_Optimized) and ten Consul clients on c3.large.
