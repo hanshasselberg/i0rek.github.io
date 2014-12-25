@@ -23,4 +23,4 @@ Using the TTL to cache DNS results works as expected. Unfortunately it literally
 
 ### Conclusion
 
-I hope I shed some light on Consuls DNS interface! It certainly helped me a lot to dig into it. For our reverse proxy kind of project I decided to use [consul-template](https://github.com/hashicorp/consul-template) instead.
+I hope I shed some light on Consuls DNS interface! It certainly helped me a lot to dig into it. For our reverse proxy kind of project I decided to use [consul-template](https://github.com/hashicorp/consul-template) instead. I want to thank [Torsten](http://torsten.io) for his great feedback on this post! Thanks for reading.
