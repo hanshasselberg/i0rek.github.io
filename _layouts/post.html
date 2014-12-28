@@ -9,3 +9,12 @@ layout: default
 
 {{ content }}
 </article>
+<footer>
+  {% if page.previous %}
+  <br />
+  <small><a href="{{ page.previous.url }}" class="previous">&laquo;&nbsp;{{ page.previous.title }}</a></small>
+  {% endif %}
+  {% if page.next %}
+  <div style="float:right;"><small><a href="{{ page.next.url }}" class="next">{{ page.next.title }}&raquo;&nbsp;</a></small></div>
+  {% endif %}
+</footer>
