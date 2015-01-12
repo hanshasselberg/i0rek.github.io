@@ -3,20 +3,24 @@ layout: post
 title:  Privacy
 ---
 
-I am concerned about privacy a lot lately and I would like to share what I am doing in order to protect it better. 
+I am concerned about the privacy a lot lately and I would like to share what I am doing in order to protect mine better. 
 
-__TLDR__; I have as little data on other peoples computers aka the cloud as possible.
+__TLDR__; I pay cash and have as little data on other peoples computers aka the cloud as possible.
 
 ### Offline
 
-There is only one thing I did in my offline life but I am mentioning it first because it feels like most important thing to me: __paying cash__. As a result I am visiting ATMs way more often now and I am also keeping track of my expenses in a [notebook]
+There is only one thing I did in my offline life but I am mentioning it first because it feels like most important thing to me: __paying cash__. As a result I am visiting ATMs way more often now and I am also keeping track of my expenses in a Moleskine notebook.
 
 ### Online
 
-At first I deleted lots and lots accounts from services I don’t use any more including Facebook, Dropbox and Yahoo. Then I moved to one timepasswords for the rest. Then I told everybody to use an email address from a domain I own: me@hans.io. Because ultimately I don’t want to use Gmail anymore. I migrated my emails to fastmail and when enough people knew about my new email I deleted every google account I have. Except for the one I have to use for work.
+At first I deleted lots and lots accounts from services I don’t use any more including Facebook, Dropbox and Yahoo. I moved to one time passwords for the rest. Then I told everybody to use an email address from a domain I own: me@hans.io instead my previous GMail address. Because ultimately I don’t want to use Google anymore. I migrated my emails to [Fastmail](https://www.fastmail.com) and when enough people knew about my new email I deleted my whole Google account. I still have one for work, but thats out of my control.
 
-The downside of not having Dropbox is that I need to backup my data. I have two seperate encrypted disks, one is used for [TimeMachine] and the other one [SuperDuper!]. Additionally I am using [Arq] to store an encrypted Backup on AWS Glacier.
+The downside of not having Dropbox is that I need to backup my data. I have two encrypted disks, one is used for Time Machine and the other one [SuperDuper!](http://www.shirt-pocket.com/SuperDuperDescription.html). Additionally I am using [Arq](http://www.haystacksoftware.com/arq) to store an encrypted Backup on AWS Glacier.
 
-On my telephone (a Nexus 4) is [Cyanogenmod] with a throwaway Google account. I am using the [PrivacyGuard] for _every_ app. For my next phone I am going to follow this [article](https://blog.torproject.org/blog/mission-impossible-hardening-android-security-and-privacy) from the Tor people though.
+On my telephone (a Nexus 4) runs [Cyanogenmod](http://www.cyanogenmod.com) with a throwaway Google account. I am using the PrivacyGuard for _every_ app. For my next phone I am going to follow this [article](https://blog.torproject.org/blog/mission-impossible-hardening-android-security-and-privacy) from the Tor people though.
 
 I am manually sharing my contacts between devices, my files with a USB-stick and my calendar is only on my laptop.
+
+### Conclusion
+
+I feel better now. I know there are many other things you can do and this is certainly not the end but more the beginning of a long journey. I would love to hear what you are doing about it!
