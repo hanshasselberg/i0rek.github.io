@@ -3,9 +3,9 @@ layout: post
 title:  Bandaids considered good.
 ---
 
-This is going to be a non technical blogpost compared to what I have written in the past. It touches a subject I am thinking about for a while now: bandaids aka hacks, fixmes, hotfixes and so on. I despised them. 
+This is going to be a non technical post compared to what I have written in the past. It touches a subject I am thinking about for a while now: bandaids aka hacks, fixmes, hotfixes and so on. I despised them. 
 
-There was a time I thought a good programmer must not do this. I would never allow myself to take shortcuts or be satisfied with mediocre solutions. Today I am happily running such a bandaid myself and I think it is OK. In this post I am telling you why.
+There was a time I thought a good programmer must not do this. I would never allow myself to take shortcuts or be satisfied with mediocre solutions. Today I am happily running such a bandaid myself and I think it is OK. Let me tell you why.
 
 ### The patient
 
@@ -13,12 +13,12 @@ We have a piece of software: X which is quite critical because it is a reverse p
 
 ### The bandaid
 
-Albeit not very much code X is not an easy thing to work on. There are only a couple of people working on it and they are quite frankly tired of it. Fixing X’s problems is tedious. Regular pages from Pagerduty are not helpful either. Then I was on call and got paged too like everybody else. The first thing I did was writing X-tester. A thing that checks every server running X. X-tester sends numbers to [Librato](http://librato.com) and I set up alerts based on these numbers. Now I got paged even more but at least none of our clients noticed anymore and we had pretty graphs helping us understanding the situation better.
+Albeit not very much code X is not an easy thing to work on. There are only a couple of people working on it and they are tired of it. Fixing X’s problems is tedious. Regular pages from Pagerduty are not helpful either. Then I was on call and got paged too like everybody else. The first thing I did was writing X-tester. A thing that checks every server running X. X-tester sends numbers to [Librato](http://librato.com) and I set up alerts based on these numbers. Now I got paged even more but at least none of our clients noticed anymore and we had pretty graphs helping us understanding the situation better.
 
 Next time I was on call I got paged again during the night and as you might or might not know thats a pretty sad thing. Since our default reaction to X’s problems was rebooting the servers I figured X-tester could do that as well for me. Since X-tester reboots X servers on its own I have not received another page for that problem, neither has anyone else.
 
-We are still very well aware of that problem but we are not stressed out because of it. We now have the time to ponder about a better solution. Our bandaid is very transparent and visible at the same time. It is external and can be turned off if necessary. Just like that. At the same time it is producing metrics and there are pretty graphs  everybody can have a look at thanks to Librato. The X-tester features 250 lines of code in total which is very approachable for everybody.
+We are still very well aware of that problem but we are not stressed out because of it. We now have the time to ponder about a better solution. Our bandaid is very transparent and visible at the same time. It is external and can be turned off if necessary. Just like that. At the same time it is producing metrics and there are pretty graphs  everybody can have a look at. The X-tester features 250 lines of code in total which is very approachable for everybody.
 
 ### Conclusion
 
-Everybody feels better now and I am very glad I got to reconsider my point of view. II have seen similiar things in many place — I bet you are operating a similiar bandaid! I would love to hear about it and I don’t think you should feel bad about it. Thanks for reading.
+Everybody feels better now and I am very glad I got to reconsider my point of view. I have seen similiar things in many place — I bet you are operating something like that too! I would love to hear about it and I don’t think you should feel bad about it. Thanks for reading.
