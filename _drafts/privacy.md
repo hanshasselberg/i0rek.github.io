@@ -3,7 +3,7 @@ layout: post
 title:  Privacy
 ---
 
-I am concerned about the privacy a lot lately and I would like to share what I am doing in order to protect mine better. 
+I am concerned about the privacy a lot lately and I would like to share what I am doing in order to protect mine better.
 
 __TLDR__; I pay cash and have as little data on other peoples computers aka the cloud as possible.
 
@@ -17,9 +17,11 @@ At first I deleted lots and lots accounts from services I don’t use any more i
 
 The downside of not having Dropbox is that I need to backup my data. I have two encrypted disks, one is used for Time Machine and the other one [SuperDuper!](http://www.shirt-pocket.com/SuperDuperDescription.html). Additionally I am using [Arq](http://www.haystacksoftware.com/arq) to store an encrypted Backup on AWS Glacier.
 
-On my telephone (a Nexus 4) runs [Cyanogenmod](http://www.cyanogenmod.com) with a throwaway Google account. I am using the PrivacyGuard for _every_ app. For my next phone I am going to follow this [article](https://blog.torproject.org/blog/mission-impossible-hardening-android-security-and-privacy) from the Tor people though.
+On my telephone (a Nexus 4) runs [Cyanogenmod](http://www.cyanogenmod.com) with a throwaway Google account. I am using the PrivacyGuard for _every_ app. For my next phone I am going to follow this [article](https://blog.torproject.org/blog/mission-impossible-hardening-android-security-and-privacy) and get inspired by this [article](https://people.torproject.org/~ioerror/skunkworks/moto_e/), both from the Tor people.
 
 I am manually sharing my contacts between devices, my files with a USB-stick and my calendar is only on my laptop.
+
+There are countless things left to do. The next account I will delete is Amazon but I am not sure what to replace it with. There is probably only one solution: buying in real shops.
 
 ### Conclusion
 
