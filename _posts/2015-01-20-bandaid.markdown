@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  Bandaids considered good.
+date:   2015-01-20 10:44:00
 ---
 
 This is going to be a non technical post compared to what I have written in the past. It touches a subject I am thinking about for a while now: bandaids aka hacks, fixmes, hotfixes and so on. I despised them. 
