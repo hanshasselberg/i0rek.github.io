@@ -1,6 +1,7 @@
 ---
 layout: post
 title:  Privacy
+date:   2015-01-21 10:00:00
 ---
 
 I am concerned about the privacy a lot lately and I would like to share what I am doing in order to protect mine better.
