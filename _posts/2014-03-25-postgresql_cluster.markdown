@@ -6,7 +6,7 @@ date:   2014-03-25 10:18:00
 
 __TLDR;__ `CLUSTER table USING index` can greatly increase performance but is hard to maintain.
 
-__UPDATE__ We did not end up using `Cluster table`.
+__UPDATE__ 29 April 2015: We did not end up using `Cluster table`.
 
 The `CLUSTER`<sup>1</sup> documentation is great, and it covers the technical details very well. You have to read all of it if you intend to use it. This post explains why and how I'm using clustered tables.
 
