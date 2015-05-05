@@ -1,10 +1,10 @@
 # How we use AWS Spot Instances
 
-Spot instances are just like normal ondemand instances from Amazon Web Services(AWS). There are two differences: they can be way cheaper and they can go away any time. We want to use them because of the savings. We are planning to use spot instances just like we use ondemand now. This blog post will explain how we deal with spot instances and the risk of losing them.
+Spot instances are just like normal ondemand instances from Amazon Web Services(AWS). There are two differences: they can be way cheaper and they can go away any time. At [6Wunderkinder](http://www.6wunderkinder.com) we want to use them because of the savings. We are planning to use spot instances just like we use ondemand now. This blog post will explain how we deal with spot instances and the risk of losing them.
 
 ## Bidding
 
-For spot instances there are two things to consider: the market price and your bid. You always only pay the market price and you will lose your spot instance when the market price is bigger than your bid. At [6Wunderkinder](http://www.6wunderkinder.com) we choose to aim for losing as few instances as possible and thus are always bidding as much as we can. Instead of letting AWS shut down our instances we want to be in charge as long as possible. That way we can shot them down when the market price raises above the amount we want to pay. There is a paper from 2011 about the market price: [Deconstructing Amazon EC2 Spot Instance Pricing](http://www.cs.technion.ac.il/~ladypine/spotprice-acmsmall.pdf) which I found very interesting. TLDR; the spot price is artificial and not market-driven.
+For spot instances there are two things to consider: the market price and your bid. You always only pay the market price and you will lose your spot instance when the market price is bigger than your bid. We choose to aim for losing as few instances as possible and thus are always bidding as much as we can. Instead of letting AWS shut down our instances we want to be in charge as long as possible. That way we can shut them down when the market price raises above the amount we want to pay. There is a paper from 2011 about the market price: [Deconstructing Amazon EC2 Spot Instance Pricing](http://www.cs.technion.ac.il/~ladypine/spotprice-acmsmall.pdf) which I found very interesting. TLDR; the spot price is artificial and not market-driven.
 
 ## Monitoring spot instances
 
