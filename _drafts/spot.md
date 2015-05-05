@@ -4,7 +4,7 @@ Spot instances are just like normal ondemand instances from Amazon Web Services(
 
 ## Bidding
 
-For spot instances there are two things you have to consider: the a market price and your bid. You always only pay the market price and you will lose your spot instance when the market price is bigger than your bid. At [6Wunderkinder](http://www.6wunderkinder.com) we choose to aim for losing as few instances  as possible and thus are always bidding as much as we can. Instead of letting AWS shut down our instances we want to be in charge as long as possible. There are is a paper from 2011 about the market price: [Deconstructing Amazon EC2 Spot Instance Pricing](http://www.cs.technion.ac.il/~ladypine/spotprice-acmsmall.pdf) which I found very interesting. TLDR; the spot price is artificial and not market-driven.
+For spot instances there are two things to consider: the market price and your bid. You always only pay the market price and you will lose your spot instance when the market price is bigger than your bid. At [6Wunderkinder](http://www.6wunderkinder.com) we choose to aim for losing as few instances as possible and thus are always bidding as much as we can. Instead of letting AWS shut down our instances we want to be in charge as long as possible. That way we can shot them down when the market price raises above the amount we want to pay. There is a paper from 2011 about the market price: [Deconstructing Amazon EC2 Spot Instance Pricing](http://www.cs.technion.ac.il/~ladypine/spotprice-acmsmall.pdf) which I found very interesting. TLDR; the spot price is artificial and not market-driven.
 
 ## Monitoring spot instances
 
@@ -14,7 +14,7 @@ Every spot instance can query the [Metadata Service](http://docs.aws.amazon.com/
 
 You can query the status of every spot instance request and it will also tell you about soon to be terminated or terminated instances. We are actively monitoring and alerting on that as well even when seems to be redundant. It is important to know about every aspect about it and it might catch something we overlooked in another place.
 
-## Monitoring the spot instance price
+## Monitoring spot instance prices
 
 In order to avoid to end up spending more money because our bid is too high we monitor spot instance prices for every instances type and availability zone we are actively using. We are graphing that as well and we will trigger an alert if it ever exceeds the ondemand price.
 
