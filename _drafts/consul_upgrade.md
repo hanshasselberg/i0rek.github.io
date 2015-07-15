@@ -19,5 +19,5 @@ Repeating the procedure a third time in production was way more scary but as bor
 
 ### Conclusion
 
-Since consul is an integral part of our infrastructure upgrading is necessary and scary at the same time. By preparing and testing we were able to pull it off without any problems. Upgrading is important and if it is scary you should do it none the less.
+Since consul is an integral part of our infrastructure upgrading is necessary and scary at the same time. By preparing and testing we were able to pull it off without any problems. Upgrading is important and you should do it more often.
 
