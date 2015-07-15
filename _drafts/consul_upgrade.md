@@ -1,7 +1,7 @@
 ## Upgrading consul infrastructure
 
 Yesterday I upgraded our consul infrastructure. Beforehand I searched for reports from others and didn't find any. That’s the reason I am going to describe what I did so that others who are in a similar situation like I are luckier.
-For [Wunderlist](https://www.wunderlist.com) we are using consuls key value store, node statuses and some service discovery. We are running 3 servers and ~700 clients. Our old version was 0.4.1 and I wanted to upgrade to 0.5.2. You should head to [upgrading consul](https://consul.io/docs/upgrading.html) and read everything carefully - it is a good start.
+For [Wunderlist](https://www.wunderlist.com) we are using consul's key value store, node statuses and some service discovery. We are running 3 servers and ~700 clients. Our old version was 0.4.1 and I wanted to upgrade to 0.5.2. You should head to [upgrading consul](https://consul.io/docs/upgrading.html) and read everything carefully - it is a good start.
 
 ### Preparation
 
