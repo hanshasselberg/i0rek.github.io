@@ -5,7 +5,7 @@ For [Wunderlist](https://www.wunderlist.com) we are using consul's key value sto
 
 ### Preparation
 
-[Upgrade specifics](https://consul.io/docs/upgrade-specific.html) mentions three possible problems: the ACL system changes, the different backend store for persisting the Raft log, and the introduction of tombstones. We don't use ACL yet so that’s fine. Since the migration utility for the Raft log is still part of 0.5.2 that is also taken care of. The tombstones are left which can be dealt with in two ways: update the servers in any order within 15minutes or update the followers first and the leader afterwards. I opted for the latter because I don't like to be in a hurry.
+[Upgrade specifics](https://consul.io/docs/upgrade-specific.html) mentions three possible problems: the ACL system changes, the different backend store for persisting the Raft log, and the introduction of tombstones. We don't use ACL yet so that’s fine. Since the migration utility for the Raft log is still part of 0.5.2 that is also taken care of. The tombstones are left which can be dealt with in two ways: update the servers in any order within 15 minutes or update the followers first and the leader afterwards. I opted for the latter because I don't like to be in a hurry.
 
 ### Testing
 
