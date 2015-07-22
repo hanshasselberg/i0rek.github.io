@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  Bandaids considered good.
+title:  Bandaids considered good
 date:   2015-01-20 10:44:00
 ---
 
