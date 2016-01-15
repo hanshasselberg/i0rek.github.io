@@ -8,7 +8,7 @@ __TLDR;__ `CLUSTER table USING index` can greatly increase performance but is ha
 
 __UPDATE__ 15 January 2015: 2 months ago we clustered our biggest table. We are using 1/20 of the IOPS now.
 
-~~__UPDATE__ 29 April 2015: We did not end up using `Cluster table`.~~
+<del>__UPDATE__ 29 April 2015: We did not end up using `Cluster table`.</del>
 
 The `CLUSTER`<sup>1</sup> documentation is great, and it covers the technical details very well. You have to read all of it if you intend to use it. This post explains why and how I'm using clustered tables.
 
