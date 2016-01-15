@@ -6,7 +6,7 @@ date:   2014-03-25 10:18:00
 
 __TLDR;__ `CLUSTER table USING index` can greatly increase performance but is hard to maintain.
 
-__UPDATE__ 15 January 2015: 2 months ago we clustered our biggest table. We are using 1/20 of the IOPS now.
+__UPDATE__ 15 January 2016: 2 months ago we clustered our biggest table. We are using 1/20 of the IOPS now.
 
 <del><b>UPDATE</b> 29 April 2015: We did not end up using `Cluster table`.</del>
 
