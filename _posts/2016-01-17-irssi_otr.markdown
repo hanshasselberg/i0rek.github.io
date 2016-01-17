@@ -6,13 +6,13 @@ date:   2016-01-17 11:00:00
 
 This is the corresponding issue in `irssi-otr`: [#40](https://github.com/cryptodotis/irssi-otr/issues/40).
 
-## Get irssi and irssi headers
+### Get irssi and irssi headers
 
 1. install irssi: `brew install irssi --HEAD`
 1. clone irssi: `git clone git@github.com:irssi/irssi.git`
 1. copy irssi headers into irssi root: `cp irssi/src/*.h irssi/; cp irssi/src/core/*.h irssi/`
 
-## Get irssi-otr
+### Get irssi-otr
 
 1. clone irssi-otr: `git clone git@github.com:cryptodotis/irssi-otr.git`
 1. remove `-z,relro,-z,now` from `configure.ac` because OSX ld doesn't support `-z`
