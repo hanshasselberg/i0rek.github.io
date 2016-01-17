@@ -1,0 +1,32 @@
+---
+layout: post
+title:  "Installing irssi-otr on OSX"
+date:   2016-01-17 11:00:00
+---
+
+This is the corresponding issue in `irssi-otr`: https://github.com/cryptodotis/irssi-otr/issues/40.
+```
+brew install irssi --HEAD
+```
+
+## Get irssi headers
+
+* clone irssi: `git clone git@github.com:irssi/irssi.git`
+* copy irssi headers into irssi root: `cp irssi/src/*.h irssi/; cp irssi/src/core/*.h irssi/`
+
+## Get irssi-otr
+
+* clone irssi-otr: `git clone git@github.com:cryptodotis/irssi-otr.git`
+* remove `-z,relro,-z,now` from `configure.ac` because OSX ld doesn't support `-z`
+* add abi check to `src/otr.c` because irssi master needs it and won't load the module without [#363](https://github.com/irssi/irssi/pull/363):
+```c
+void otr_abicheck(int *version)
+{
+  *version = 1;
+}
+```
+* configure and provide the path to __YOUR__ irssi folder (the one you cloned): `./configure --prefix="/usr/local" --with-irssi-headers=~/src/github.com/irssi/irssi`
+* `make`
+* because `make install` failed for me I created a new dir and installed there: `make install DESTDIR=$(pwd)/destdir`
+* copy the module into __YOUR__ irssi folder: `cp destdir/usr/lib/irssi/modules/libotr.so ~/.irssi/modules`
+* `/load otr` in irssi
