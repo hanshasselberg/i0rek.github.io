@@ -4,7 +4,7 @@ title:  "Installing irssi-otr on OSX"
 date:   2016-01-17 11:00:00
 ---
 
-This is the corresponding issue in `irssi-otr`: [#40](https://github.com/cryptodotis/irssi-otr/issues/40).
+I am using [irssi](https://irssi.org/) every day and I missed [OTR](https://otr.cypherpunks.ca/). I found [irssi-otr](https://github.com/cryptodotis/irssi-otr), but installing failed: [#40](https://github.com/cryptodotis/irssi-otr/issues/40). This posts describes how I fixed it. It is not pretty...
 
 ### Get irssi and irssi headers
 
