@@ -16,13 +16,7 @@ This is the corresponding issue in `irssi-otr`: [#40](https://github.com/cryptod
 
 1. clone irssi-otr: `git clone git@github.com:cryptodotis/irssi-otr.git`
 1. remove `-z,relro,-z,now` from `configure.ac` because OSX ld doesn't support `-z`
-1. add abi check to `src/otr.c` because irssi master needs it and won't load the module without [#363](https://github.com/irssi/irssi/pull/363):
-```c
-void otr_abicheck(int *version)
-{
-  *version = 1;
-}
-```
+1. add abi check because irssi master needs it and won't load the module without [#363](https://github.com/irssi/irssi/pull/363) and [#59](https://github.com/cryptodotis/irssi-otr/pull/59).
 1. configure and provide the path to __YOUR__ irssi folder (the one you cloned): `./configure --prefix="/usr/local" --with-irssi-headers=~/src/github.com/irssi/irssi`
 1. `make`
 1. because `make install` failed for me I created a new dir and installed there: `make install DESTDIR=$(pwd)/destdir`
