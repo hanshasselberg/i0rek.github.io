@@ -4,29 +4,27 @@ title:  "Installing irssi-otr on OSX"
 date:   2016-01-17 11:00:00
 ---
 
-This is the corresponding issue in `irssi-otr`: https://github.com/cryptodotis/irssi-otr/issues/40.
-```
-brew install irssi --HEAD
-```
+This is the corresponding issue in `irssi-otr`: [#40](https://github.com/cryptodotis/irssi-otr/issues/40).
 
-## Get irssi headers
+## Get irssi and irssi headers
 
-* clone irssi: `git clone git@github.com:irssi/irssi.git`
-* copy irssi headers into irssi root: `cp irssi/src/*.h irssi/; cp irssi/src/core/*.h irssi/`
+1. install irssi: `brew install irssi --HEAD`
+1. clone irssi: `git clone git@github.com:irssi/irssi.git`
+1. copy irssi headers into irssi root: `cp irssi/src/*.h irssi/; cp irssi/src/core/*.h irssi/`
 
 ## Get irssi-otr
 
-* clone irssi-otr: `git clone git@github.com:cryptodotis/irssi-otr.git`
-* remove `-z,relro,-z,now` from `configure.ac` because OSX ld doesn't support `-z`
-* add abi check to `src/otr.c` because irssi master needs it and won't load the module without [#363](https://github.com/irssi/irssi/pull/363):
+1. clone irssi-otr: `git clone git@github.com:cryptodotis/irssi-otr.git`
+1. remove `-z,relro,-z,now` from `configure.ac` because OSX ld doesn't support `-z`
+1. add abi check to `src/otr.c` because irssi master needs it and won't load the module without [#363](https://github.com/irssi/irssi/pull/363):
 ```c
 void otr_abicheck(int *version)
 {
   *version = 1;
 }
 ```
-* configure and provide the path to __YOUR__ irssi folder (the one you cloned): `./configure --prefix="/usr/local" --with-irssi-headers=~/src/github.com/irssi/irssi`
-* `make`
-* because `make install` failed for me I created a new dir and installed there: `make install DESTDIR=$(pwd)/destdir`
-* copy the module into __YOUR__ irssi folder: `cp destdir/usr/lib/irssi/modules/libotr.so ~/.irssi/modules`
-* `/load otr` in irssi
+1. configure and provide the path to __YOUR__ irssi folder (the one you cloned): `./configure --prefix="/usr/local" --with-irssi-headers=~/src/github.com/irssi/irssi`
+1. `make`
+1. because `make install` failed for me I created a new dir and installed there: `make install DESTDIR=$(pwd)/destdir`
+1. copy the module into __YOUR__ irssi folder: `cp destdir/usr/lib/irssi/modules/libotr.so ~/.irssi/modules`
+1. `/load otr` in irssi
