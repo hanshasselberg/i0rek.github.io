@@ -1,4 +1,4 @@
 name: Hans Hasselberg
-markdown: redcarpet
+markdown: kramdown
 permalink: /blog/:year/:month/:day/:title
 exclude: [Makefile]
