@@ -16,7 +16,6 @@ I am using [irssi](https://irssi.org/) every day and I missed [OTR](https://otr.
 
 1. clone irssi-otr: `git clone git@github.com:cryptodotis/irssi-otr.git`
 1. remove `-z,relro,-z,now` from `configure.ac` because OSX ld doesn't support `-z`
-1. [add abi check](https://github.com/cryptodotis/irssi-otr/pull/59) because irssi master needs it and won't load the module without it: [#363](https://github.com/irssi/irssi/pull/363).
 1. configure and provide the path to __YOUR__ irssi folder (the one you cloned): `./configure --prefix="/usr/local" --with-irssi-headers=~/src/github.com/irssi/irssi`
 1. `make`
 1. because `make install` failed for me I created a new dir and installed there: `make install DESTDIR=$(pwd)/destdir`
