@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <title>PostgreSQL: CLUSTER table USING index;</title>
+    <style type="text/css">
+      body {
+        font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 20px;
+        line-height: 1.5;
+        max-width: 700px;
+        margin: 0 auto;
+        padding-left: 4%;
+        padding-right: 4%;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizelegibility;
+      }
+      body header, nav, nav ul, nav li { display:inline-block; padding: 0; }
+      header h1 { margin-right: 0.5em }
+      nav li { margin-left: 0.5em }
+      h1, h2, h3, h4 {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+      body nav, body article header, body footer {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+      }
+      img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        
+          Hans Hasselberg
+        
+      </h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../../../../index.html">Home</a></li>
+        <li><a href="../../../../about/index.html">About</a></li>
+        <li><a href="../../../../about/honey.html">Honey</a></li>
+      </ul>
+    </nav>
+    <article>
+  <header>
+  <h2>PostgreSQL: CLUSTER table USING index;</h2>
+  <p><small>25 Mar 2014</small></p>
+  </header>
+
+<p><strong>TLDR;</strong> <code class="language-plaintext highlighter-rouge">CLUSTER table USING index</code> can greatly increase performance but is hard to maintain.</p>
+
+<p><strong>UPDATE</strong> 15 January 2016: 2 months ago we clustered our biggest table. We are using 1/20 of the IOPS now.</p>
+
+<p><del><b>UPDATE</b> 29 April 2015: We did not end up using <code class="language-plaintext highlighter-rouge">Cluster table</code>.</del></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">CLUSTER</code><sup>1</sup> documentation is great, and it covers the technical details very well. You have to read all of it if you intend to use it. This post explains why and how I’m using clustered tables.</p>
+
+<h3 id="background">Background</h3>
+
+<p>I’m currently preparing the migration the migration of our tasks PostgreSQL 9.1 database to a PostgreSQL 9.3 database. We are switching to a hosted database instead of running our own server, because, frankly, we’re not good at operating database servers. The servers we are using to host our database were on huge machines: 2 hi.4xlarge<sup>7</sup> instances. We can throw everything at them and I want to stop doing that. My goal is to migrate the database to 1 db.m2.2xlarge<sup>8</sup> instance with 1000 provisioned IOPS.</p>
+
+<p>As you probably noticed there is quite a big difference between 2 hi.4xlarge and 1 db.m1.xlarge. For example the latter has 2*120 times less IOPS - the resource we struggle with the most. I set this goal because I believe it is realistic, and that we only need these big machines because we are doing it wrong.</p>
+
+<p>This blog post explains why clustering the table was crucial to archiving my goal!</p>
+
+<h3 id="cluster">CLUSTER</h3>
+
+<p>For the scope of this blog post I’m going to assume a very simple table schema:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CREATE TABLE tasks (
+  id serial PRIMARY KEY, 
+  title character varying(255), 
+  list_id integer
+);
+CREATE INDEX index_list_id on tasks(list_id);
+</code></pre></div></div>
+
+<p>I generated 500,000,000 tasks in 500,000 lists and every 1000th tasks belongs to the same list.</p>
+
+<p>The most frequent type of query is <code class="language-plaintext highlighter-rouge">SELECT * FROM tasks WHERE list_id IN (?, ?, ?)</code>. Unfortunately this query is rather expensive especially when querying for many lists. The query I’m using for demonstration includes every 5000th list—100 in total:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>EXPLAIN (ANALYZE, BUFFERS) SELECT * 
+FROM tasks 
+WHERE list_id IN (5000, 10000, ...);
+------------------------------------- Query Plan
+Index Scan using index_list_id on tasks
+  Index Cond: (list_id = ANY ('{5000, 10000, ...}'::integer[]))
+  Buffers: shared hit=5316 read=5120
+Total runtime: 2478.740 ms
+(4 rows)
+</code></pre></div></div>
+
+<p>Now lets repeat the same query on a clustered table which has the schema and data as tasks:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CLUSTER TABLE tasks_clustered USING index_list_id;
+ANALYZE tasks_clustered;
+EXPLAIN (ANALYZE, BUFFERS) SELECT * 
+FROM tasks 
+WHERE list_id IN (5000, 10000, ...);
+------------------------------------- Query Plan
+Index Scan using index_list_id on tasks_clustered
+  Index Cond: (list_id = ANY ('{5000, 10000, ...}'::integer[]))
+  Buffers: shared hit=399 read=199
+Total runtime: 80.665 ms
+(4 rows)
+</code></pre></div></div>
+
+<p>You can look at the full queries and query plans in a separate gist<sup>3</sup>. As you can see the query was &gt;30 times faster on the clustered table because significantly less buffers were needed by PostgreSQL to respond.</p>
+
+<p>What happened? That was my question exactly when I was experimenting with the data some time ago. What is <code class="language-plaintext highlighter-rouge">CLUSTER</code> actually doing?</p>
+
+<blockquote>
+  <p>When a table is clustered, it is physically reordered based on the index information.<sup>1</sup></p>
+</blockquote>
+
+<p>A clustered table doesn’t help when querying rows randomly. It can greatly increase performance when you query a range of index values or a single index value with multiple entries because the queried data is in one place on the disk.</p>
+
+<p>Looking back at our query <code class="language-plaintext highlighter-rouge">SELECT * FROM tasks WHERE list_id IN (?, ?, ?)</code>, it is clear why the clustered table is so much faster! The tasks are grouped together on the disk according to their list id. PostgreSQL can read every list’s tasks from disk without jumping around. Fast and convenient! For the unclustered table, however, the tasks for each list are spread across the disk.</p>
+
+<h3 id="maintenance">Maintenance</h3>
+
+<p>While the benefits of a clustered table are obvious, there are things you need to consider before using it. Clustering is a one-time operation<sup>1</sup>, and updates, inserts, or deletes will fragment the table again. Depending on your use case you will probably be forced to cluster your table regularly to maintain the order. Clustering issues an ExclusiveLock<sup>1,4</sup>, and as a result you can neither read nor write while clustering.</p>
+
+<p>When dealing with clustered tables you should set fillfactor<sup>2</sup> appropriately. It will avoid fragmentation by enabling PostgreSQL to put the updated row on the same page as the original one.</p>
+
+<p>I believe another possibility to cluster a table is to use pg_reorg which:</p>
+
+<blockquote>
+  <p>Reorganize tables in PostgreSQL databases without any locks.<sup>5</sup></p>
+</blockquote>
+
+<p>It looks promising, but I haven’t played around with it because there are only a few extensions available on AWS RDS PostgreSQL<sup>6</sup>.</p>
+
+<h3 id="fin">Fin</h3>
+
+<p>It is hard to maintain a clustered table, but I’m still amazed by its impact and benefits. Clustering seems to be the solution for tables which suffer from too many reads from queries on a foreign key.</p>
+
+<p>I would love to hear about your experiences with clustering and the techniques you used to maintain it!</p>
+
+<h3 id="acknowledgements">Acknowledgements</h3>
+
+<p>I would like to thank <a href="http://torsten.io">Torsten</a> for working with me on the database stuff and helping me write this blog post. I also want to thank <a href="http://rylev.github.io/words/">Ryan</a> for proofreading this blog post! &lt;3</p>
+
+<h3 id="sources">Sources</h3>
+
+<ol>
+  <li><a href="http://www.postgresql.org/docs/9.3/static/sql-cluster.html">PostgreSQL: Cluster</a></li>
+  <li><a href="http://www.postgresql.org/docs/current/static/sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS">PostgreSQL: Fillfactor</a></li>
+  <li><a href="https://gist.github.com/i0rek/163f59d850ac7a74157b">Complete Query and Explain from example</a></li>
+  <li><a href="http://www.postgresql.org/docs/current/static/sql-lock.html">PostgreSQL: Locks</a></li>
+  <li><a href="http://reorg.projects.pgfoundry.org/pg_reorg.html">PGFoundary: pg_reorg</a></li>
+  <li><a href="http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html">AWS RDS PostgreSQL</a></li>
+  <li><a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/storage_instances.html">AWS EC2: hi.4xlarge</a></li>
+  <li><a href="http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html">AWS RDS: db.m2.2xlarge</a></li>
+  <li><a href="http://www.postgresonline.com/journal/index.php?/archives/10-How-does-CLUSTER-ON-improve-index-performance.html">How does CLUSTER ON improve index performance</a></li>
+  <li><a href="http://blog.chrishowie.com/2013/02/15/lock-free-clustering-of-large-postgresql-data-sets">Lock-free clustering of large PostgreSQL data sets</a></li>
+</ol>
+
+  </br>
+  If you read this far you should probably follow me on <a href="https://www.twitter.com/i0rek">twitter</a>.
+</article>
+<footer>
+  
+  <br />
+  <small><a href="../../02/19/postgresql_connection.html" class="previous">&laquo;&nbsp;Costs of a PostgreSQL connection</a></small>
+  
+  
+  <div style="float:right;"><small><a href="../27/gracefully_restart_postgresql_with_pgbouncer.html" class="next">Gracefully restart PostgreSQL with PGBouncer&raquo;&nbsp;</a></small></div>
+  
+</footer>
+
+    <!-- Start of StatCounter Code for Default Guide -->
+    <script type="text/javascript">
+      var sc_project=9577359;
+      var sc_invisible=1;
+      var sc_security="6beb8b07";
+      var scJsHost = (("https:" == document.location.protocol) ?
+      "https://secure." : "http://www.");
+      document.write("<sc"+"ript type='text/javascript' src='" +
+      scJsHost+
+      "statcounter.com/counter/counter.js'></"+"script>");
+    </script>
+    <noscript><div class="statcounter"><a title="hits counter"
+          href="http://statcounter.com/free-hit-counter/"
+          target="_blank"><img class="statcounter"
+          src="http://c.statcounter.com/9577359/0/6beb8b07/1/"
+          alt="hits counter"></a></div></noscript>
+    <!-- End of StatCounter Code for Default Guide -->
+  </body>
+</html>

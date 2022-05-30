@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <title>Gracefully restart PostgreSQL with PGBouncer</title>
+    <style type="text/css">
+      body {
+        font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 20px;
+        line-height: 1.5;
+        max-width: 700px;
+        margin: 0 auto;
+        padding-left: 4%;
+        padding-right: 4%;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizelegibility;
+      }
+      body header, nav, nav ul, nav li { display:inline-block; padding: 0; }
+      header h1 { margin-right: 0.5em }
+      nav li { margin-left: 0.5em }
+      h1, h2, h3, h4 {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+      body nav, body article header, body footer {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+      }
+      img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        
+          Hans Hasselberg
+        
+      </h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../../../../index.html">Home</a></li>
+        <li><a href="../../../../about/index.html">About</a></li>
+        <li><a href="../../../../about/honey.html">Honey</a></li>
+      </ul>
+    </nav>
+    <article>
+  <header>
+  <h2>Gracefully restart PostgreSQL with PGBouncer</h2>
+  <p><small>27 Mar 2014</small></p>
+  </header>
+
+<h3 id="background">Background</h3>
+
+<p>Restarting databases is never pleasant but sometimes there is no other option. When restarting the database clients are loosing their connection and need to reconnect. Rails in our case doesn’t do that automatically. If you happen to use PostgreSQL with PGBouncer like us<sup>1</sup> there is a way to do that with as little interruption as possible.</p>
+
+<h3 id="pause-and-resume">Pause and Resume</h3>
+
+<p>I recently stumbled over PGBouncers <code class="language-plaintext highlighter-rouge">PAUSE</code> and <code class="language-plaintext highlighter-rouge">RESUME</code> commands<sup>2</sup>. <code class="language-plaintext highlighter-rouge">PAUSE</code> will make PGBouncer to wait for every query to finish and then close its own connections to the database. <code class="language-plaintext highlighter-rouge">RESUME</code> will reconnect to the database and run the queries issued while being paused. This is transparent for the client, they don’t need to reconnect. You can <code class="language-plaintext highlighter-rouge">PAUSE</code>, <strong>restart</strong>, and <code class="language-plaintext highlighter-rouge">RESUME</code> your database and nobody will notice!</p>
+
+<h3 id="fin">Fin</h3>
+
+<p>This is just a little thing but it made my life better. Maybe it helps you too.</p>
+
+<h3 id="sources">Sources</h3>
+
+<ol>
+  <li><a href="http://hans.io/blog/2014/02/19/postgresql_connection/index.html">Costs of a PostgreSQL connection</a></li>
+  <li><a href="http://pgbouncer.projects.pgfoundry.org/doc/usage.html#_process_controlling_commands">PGBouncer: Usage</a></li>
+</ol>
+
+  </br>
+  If you read this far you should probably follow me on <a href="https://www.twitter.com/i0rek">twitter</a>.
+</article>
+<footer>
+  
+  <br />
+  <small><a href="../25/postgresql_cluster.html" class="previous">&laquo;&nbsp;PostgreSQL: CLUSTER table USING index;</a></small>
+  
+  
+  <div style="float:right;"><small><a href="../../12/02/consul_setup.html" class="next">Setting up Consul on AWS&raquo;&nbsp;</a></small></div>
+  
+</footer>
+
+    <!-- Start of StatCounter Code for Default Guide -->
+    <script type="text/javascript">
+      var sc_project=9577359;
+      var sc_invisible=1;
+      var sc_security="6beb8b07";
+      var scJsHost = (("https:" == document.location.protocol) ?
+      "https://secure." : "http://www.");
+      document.write("<sc"+"ript type='text/javascript' src='" +
+      scJsHost+
+      "statcounter.com/counter/counter.js'></"+"script>");
+    </script>
+    <noscript><div class="statcounter"><a title="hits counter"
+          href="http://statcounter.com/free-hit-counter/"
+          target="_blank"><img class="statcounter"
+          src="http://c.statcounter.com/9577359/0/6beb8b07/1/"
+          alt="hits counter"></a></div></noscript>
+    <!-- End of StatCounter Code for Default Guide -->
+  </body>
+</html>

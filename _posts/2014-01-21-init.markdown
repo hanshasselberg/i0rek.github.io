@@ -1,7 +1,0 @@
----
-layout: post
-title:  "Init"
-date:   2014-01-21 09:26:59
----
-
-I've created a blog. Yay.

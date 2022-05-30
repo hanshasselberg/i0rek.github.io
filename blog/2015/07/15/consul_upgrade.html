@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <title>Upgrading consul infrastructure</title>
+    <style type="text/css">
+      body {
+        font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 20px;
+        line-height: 1.5;
+        max-width: 700px;
+        margin: 0 auto;
+        padding-left: 4%;
+        padding-right: 4%;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizelegibility;
+      }
+      body header, nav, nav ul, nav li { display:inline-block; padding: 0; }
+      header h1 { margin-right: 0.5em }
+      nav li { margin-left: 0.5em }
+      h1, h2, h3, h4 {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+      body nav, body article header, body footer {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+      }
+      img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        
+          Hans Hasselberg
+        
+      </h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../../../../index.html">Home</a></li>
+        <li><a href="../../../../about/index.html">About</a></li>
+        <li><a href="../../../../about/honey.html">Honey</a></li>
+      </ul>
+    </nav>
+    <article>
+  <header>
+  <h2>Upgrading consul infrastructure</h2>
+  <p><small>15 Jul 2015</small></p>
+  </header>
+
+<h3 id="background">Background</h3>
+
+<p>Yesterday I upgraded our <a href="https://consul.io">consul</a> infrastructure. Beforehand I searched for reports from others and didn’t find any. That’s the reason I am going to describe what I did so that others who are in a similar situation like I are luckier.
+For <a href="https://www.wunderlist.com">Wunderlist</a> we are using consul’s key value store, node statuses and some service discovery. We are running 3 servers and ~700 clients. Our old version was 0.4.1 and I wanted to upgrade to 0.5.2. You should head to <a href="https://consul.io/docs/upgrading.html">upgrading consul</a> and read everything carefully - it is a good start.</p>
+
+<h3 id="preparation">Preparation</h3>
+
+<p><a href="https://consul.io/docs/upgrade-specific.html">Upgrade specifics</a> mentions three possible problems: the ACL system changes, the different backend store for persisting the Raft log, and the introduction of tombstones. We don’t use ACL yet so that’s fine. Since the migration utility for the Raft log is still part of 0.5.2 that is also taken care of. The tombstones are left which can be dealt with in two ways: update the servers in any order within 15 minutes or update the followers first and the leader afterwards. I opted for the latter because I don’t like to be in a hurry.</p>
+
+<h3 id="testing">Testing</h3>
+
+<p>In order to get a feeling how this is going to work I created a test environment with 3 v0.4.1 servers and 1 v0.4.1 client. I upgraded the servers and observed what happens from the client’s perspective with <code class="language-plaintext highlighter-rouge">consul monitor --log-level=debug</code>. For the upgrade itself I replaced the consul executable with the one for v0.5.2 and used <code class="language-plaintext highlighter-rouge">kill -9</code> to stop the running consul. <strong>It is important to not let the server <a href="https://consul.io/docs/commands/leave.html">leave</a> the cluster</strong>. In our case consul is managed by upstart and <code class="language-plaintext highlighter-rouge">stop consul</code> would have issued a leave which is the reason I had to kill it manually. I then waited for it to be restarted. I did that on one server after another.
+Although there were brief moments where there was no leader, everything got back to normal pretty fast. The client noticed the changes in the cluster, but was able to deal with it without me doing anything. After the server upgrade, I had 1 v0.4.1 client and 3 0.5.2 servers talking to each other.
+I repeated this procedure one more time in another test environment and everything was good the second time too.</p>
+
+<h3 id="do-it-live">Do it live!</h3>
+
+<p>Repeating the procedure a third time in production was way more scary but just as boring. The upgrade of our production servers worked fine. The clients will be upgraded as we spin up new servers. I don’t mind having old clients as long as I don’t need any of the new features for them.</p>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<p>Since consul is an integral part of our infrastructure, upgrading is necessary and scary at the same time. By preparing and testing we were able to pull it off without any problems. Upgrading is important and you should do it more often. I want to thank <a href="http://torsten.io">Torsten</a> for proofreading and helping me with this post!</p>
+
+  </br>
+  If you read this far you should probably follow me on <a href="https://www.twitter.com/i0rek">twitter</a>.
+</article>
+<footer>
+  
+  <br />
+  <small><a href="../../05/05/spot_instances.html" class="previous">&laquo;&nbsp;How we use AWS Spot Instances</a></small>
+  
+  
+  <div style="float:right;"><small><a href="../../../2016/01/17/irssi_otr.html" class="next">Installing irssi-otr on OSX&raquo;&nbsp;</a></small></div>
+  
+</footer>
+
+    <!-- Start of StatCounter Code for Default Guide -->
+    <script type="text/javascript">
+      var sc_project=9577359;
+      var sc_invisible=1;
+      var sc_security="6beb8b07";
+      var scJsHost = (("https:" == document.location.protocol) ?
+      "https://secure." : "http://www.");
+      document.write("<sc"+"ript type='text/javascript' src='" +
+      scJsHost+
+      "statcounter.com/counter/counter.js'></"+"script>");
+    </script>
+    <noscript><div class="statcounter"><a title="hits counter"
+          href="http://statcounter.com/free-hit-counter/"
+          target="_blank"><img class="statcounter"
+          src="http://c.statcounter.com/9577359/0/6beb8b07/1/"
+          alt="hits counter"></a></div></noscript>
+    <!-- End of StatCounter Code for Default Guide -->
+  </body>
+</html>

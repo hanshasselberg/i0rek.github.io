@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <title>Setting up Consul on AWS</title>
+    <style type="text/css">
+      body {
+        font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 20px;
+        line-height: 1.5;
+        max-width: 700px;
+        margin: 0 auto;
+        padding-left: 4%;
+        padding-right: 4%;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizelegibility;
+      }
+      body header, nav, nav ul, nav li { display:inline-block; padding: 0; }
+      header h1 { margin-right: 0.5em }
+      nav li { margin-left: 0.5em }
+      h1, h2, h3, h4 {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+      body nav, body article header, body footer {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+      }
+      img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        
+          Hans Hasselberg
+        
+      </h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../../../../index.html">Home</a></li>
+        <li><a href="../../../../about/index.html">About</a></li>
+        <li><a href="../../../../about/honey.html">Honey</a></li>
+      </ul>
+    </nav>
+    <article>
+  <header>
+  <h2>Setting up Consul on AWS</h2>
+  <p><small>02 Dec 2014</small></p>
+  </header>
+
+<h2 id="purpose">Purpose</h2>
+
+<p>I wanted to extend the <a href="http://www.6wunderkinder.com/">6Wunderkinder</a> infrastructure with service discovery and improve the health checks. For these goals <a href="https://consul.io">Consul</a> seemed like a very good fit. Getting the <a href="https://consul.io/docs/agent/http.html#kv">key/value store</a> was just the icing. In the following, I will explain the setup, things I’ve run into and share the configuration. I was looking for such a description myself and couldn’t find one.</p>
+
+<h2 id="first-steps-with-consul">First steps with Consul</h2>
+
+<p>The first feature of Consul I used was the KV store. During provisioning of the instances I used Consul to set up credentials for database access. It was running for quite some time before I started integrating services and health checks. When I did that, I noticed two problems:</p>
+
+<ol>
+  <li>Foreign nodes in the cluster <strong>which turned out to be my fault</strong></li>
+  <li>Unrelieable joining and leaving of nodes</li>
+</ol>
+
+<h3 id="1-foreign-nodes">1. Foreign nodes</h3>
+
+<p>This was a really strange and scary thing. I only discovered it by going through the list of nodes manually with <code class="language-plaintext highlighter-rouge">consul members</code>. The Consul setup is in public AWS EC2. Not every port was properly protected by AWS Security groups. That was the first thing I changed. I created a dedicated <a href="https://gist.github.com/i0rek/370eee40379668983455">AWS Security Group</a>, in which I opened every port mentioned in the <a href="https://consul.io/docs/agent/options.html">docs at the very bottom</a> to itself. Now every server and client must have this group in order to participate. I also enabled <a href="https://consul.io/docs/agent/encryption.html">encryption</a> and <a href="https://consul.io/docs/agent/encryption.html">TLS</a> with this <a href="https://www.digitalocean.com/community/tutorials/how-to-secure-consul-with-tls-encryption-on-ubuntu-14-04">help</a>. I should’ve done that in the first place and you should too.</p>
+
+<h3 id="2-unrelieable-joining-and-leaving-of-nodes">2. Unrelieable joining and leaving of nodes</h3>
+
+<p>Whenever I inspected <code class="language-plaintext highlighter-rouge">consul monitor</code> pages of output were flying by and I thought that is normal. I learned it is not. I was running into a problem and after giving it some thought, <a href="https://twitter.com/armon">Armon</a> from Hashicorp was able to identify and <a href="https://github.com/hashicorp/memberlist/commit/63ef41a08f845463ae968b58ca4927666ccc1f4e">fix</a> it. Turns out the Serf event bus was saturated. The lesson here is that you should always be <a href="https://consul.io/docs/agent/telemetry.html">monitoring</a> because then the problem would’ve been easy to spot. I should’ve done that in the first place and you should too.</p>
+
+<h2 id="configuration">Configuration</h2>
+
+<p>As promised I’ve uploaded the <a href="https://gist.github.com/i0rek/d8ed565f79d9c250004d">configuration</a>.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>The cluster is stable and everything works as expected. I am looking forward to put Consul to its use: orchestration. I want to thank <a href="http://torsten.io">Torsten</a> for his great feedback on this post! Thanks for reading.</p>
+
+  </br>
+  If you read this far you should probably follow me on <a href="https://www.twitter.com/i0rek">twitter</a>.
+</article>
+<footer>
+  
+  <br />
+  <small><a href="../../03/27/gracefully_restart_postgresql_with_pgbouncer.html" class="previous">&laquo;&nbsp;Gracefully restart PostgreSQL with PGBouncer</a></small>
+  
+  
+  <div style="float:right;"><small><a href="../25/consul_dns.html" class="next">Consul DNS Interface Exploration&raquo;&nbsp;</a></small></div>
+  
+</footer>
+
+    <!-- Start of StatCounter Code for Default Guide -->
+    <script type="text/javascript">
+      var sc_project=9577359;
+      var sc_invisible=1;
+      var sc_security="6beb8b07";
+      var scJsHost = (("https:" == document.location.protocol) ?
+      "https://secure." : "http://www.");
+      document.write("<sc"+"ript type='text/javascript' src='" +
+      scJsHost+
+      "statcounter.com/counter/counter.js'></"+"script>");
+    </script>
+    <noscript><div class="statcounter"><a title="hits counter"
+          href="http://statcounter.com/free-hit-counter/"
+          target="_blank"><img class="statcounter"
+          src="http://c.statcounter.com/9577359/0/6beb8b07/1/"
+          alt="hits counter"></a></div></noscript>
+    <!-- End of StatCounter Code for Default Guide -->
+  </body>
+</html>
