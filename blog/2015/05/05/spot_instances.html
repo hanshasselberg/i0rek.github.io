@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <title>How we use AWS Spot Instances</title>
+    <style type="text/css">
+      body {
+        font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 20px;
+        line-height: 1.5;
+        max-width: 700px;
+        margin: 0 auto;
+        padding-left: 4%;
+        padding-right: 4%;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizelegibility;
+      }
+      body header, nav, nav ul, nav li { display:inline-block; padding: 0; }
+      header h1 { margin-right: 0.5em }
+      nav li { margin-left: 0.5em }
+      h1, h2, h3, h4 {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+      body nav, body article header, body footer {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+      }
+      img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        
+          Hans Hasselberg
+        
+      </h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../../../../index.html">Home</a></li>
+        <li><a href="../../../../about/index.html">About</a></li>
+        <li><a href="../../../../about/honey.html">Honey</a></li>
+      </ul>
+    </nav>
+    <article>
+  <header>
+  <h2>How we use AWS Spot Instances</h2>
+  <p><small>05 May 2015</small></p>
+  </header>
+
+<p>Spot instances are just like normal ondemand instances from Amazon Web Services(AWS). There are two differences: they can be way cheaper and they can go away any time. At <a href="http://www.6wunderkinder.com">6Wunderkinder</a> we want to use them because of the savings. We are planning to use spot instances just like we use ondemand now. This blog post will explain how we deal with spot instances and the risk of losing them.</p>
+
+<h3 id="bidding">Bidding</h3>
+
+<p>For spot instances there are two things to consider: the market price and your bid. You always only pay the market price and you will lose your spot instance when the market price is bigger than your bid. We choose to aim for losing as few instances as possible and thus are always bidding as much as we can. Instead of letting AWS shut down our instances we want to be in charge as long as possible. That way we can shut them down when the market price raises above the amount we want to pay. There is a paper from 2011 about the market price: <a href="http://www.cs.technion.ac.il/~ladypine/spotprice-acmsmall.pdf">Deconstructing Amazon EC2 Spot Instance Pricing</a> which I found very interesting. TLDR; the spot price is artificial and not market-driven.</p>
+
+<h3 id="monitoring-spot-instances">Monitoring spot instances</h3>
+
+<p>Every spot instance can query the <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-interruptions.html#spot-instance-termination-notices">Metadata Service</a> which will give you a ~2minutes heads up. We monitor that on every spot instance we run, graph it and alert from it.</p>
+
+<h3 id="monitoring-spot-instance-requests">Monitoring spot instance requests</h3>
+
+<p>You can query the status of every spot instance request and it will also tell you about soon to be terminated or terminated instances. We are actively monitoring and alerting on that as well even when seems to be redundant. It is important to know about every aspect about it and it might catch something we overlooked in another place.</p>
+
+<h3 id="monitoring-spot-instance-prices">Monitoring spot instance prices</h3>
+
+<p>In order to avoid to end up spending more money because our bid is too high we monitor spot instance prices for every instances type and availability zone we are actively using. We are graphing that as well and we will trigger an alert if it ever exceeds the ondemand price.</p>
+
+<h3 id="requesting-spot-instances">Requesting spot instances</h3>
+
+<p>It turns out requesting spot instances is not as straight forward as with ondemand instances. There are more things that can go wrong and it takes almost always significantly more time. Our code times out when it takes too long and falls back to provisioning ondemand instances automatically. The same happens when for some reason we don’t get spot instances. That way we do not bother developers because they can be sure to get instances - either spot or ondemand.</p>
+
+<h3 id="dealing-with-spot-instance-terminations">Dealing with spot instance terminations</h3>
+
+<p>Disclaimer: I haven’t implemented anything I am talking about next but I think it is still worth your time. We are using AWS AMIs to deploy everything we have. An AMI contains everything necessary to start a server. In case we are losing an instance it will be reported to another service. This service will know which AMI the lost server is booted from and will in turn spin up another one. I think it is that simple. Launching a new server will then first try to get a new spot instance and fall back to ondemand if thats not possible.
+Another thing I plan to do is to observe the spot market and select a few suited instance types and availability zones and boot new ones accordingly. Our services might need to adapt to different instance sizes, but thats not impossible.</p>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<p>After 1 month of increased usage we have yet to lose a single instance. We are looking forward to roll out spot instances across our whole fleet. You can find the code we use to observe spot instances, spot requests and spot prices in <a href="https://gist.github.com/i0rek/2b80172b794499e4744e">this gist</a>.</p>
+
+  </br>
+  If you read this far you should probably follow me on <a href="https://www.twitter.com/i0rek">twitter</a>.
+</article>
+<footer>
+  
+  <br />
+  <small><a href="../../01/21/privacy.html" class="previous">&laquo;&nbsp;Privacy</a></small>
+  
+  
+  <div style="float:right;"><small><a href="../../07/15/consul_upgrade.html" class="next">Upgrading consul infrastructure&raquo;&nbsp;</a></small></div>
+  
+</footer>
+
+    <!-- Start of StatCounter Code for Default Guide -->
+    <script type="text/javascript">
+      var sc_project=9577359;
+      var sc_invisible=1;
+      var sc_security="6beb8b07";
+      var scJsHost = (("https:" == document.location.protocol) ?
+      "https://secure." : "http://www.");
+      document.write("<sc"+"ript type='text/javascript' src='" +
+      scJsHost+
+      "statcounter.com/counter/counter.js'></"+"script>");
+    </script>
+    <noscript><div class="statcounter"><a title="hits counter"
+          href="http://statcounter.com/free-hit-counter/"
+          target="_blank"><img class="statcounter"
+          src="http://c.statcounter.com/9577359/0/6beb8b07/1/"
+          alt="hits counter"></a></div></noscript>
+    <!-- End of StatCounter Code for Default Guide -->
+  </body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <title>Bandaids considered good</title>
+    <style type="text/css">
+      body {
+        font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 20px;
+        line-height: 1.5;
+        max-width: 700px;
+        margin: 0 auto;
+        padding-left: 4%;
+        padding-right: 4%;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizelegibility;
+      }
+      body header, nav, nav ul, nav li { display:inline-block; padding: 0; }
+      header h1 { margin-right: 0.5em }
+      nav li { margin-left: 0.5em }
+      h1, h2, h3, h4 {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+      body nav, body article header, body footer {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+      }
+      img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        
+          Hans Hasselberg
+        
+      </h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../../../../index.html">Home</a></li>
+        <li><a href="../../../../about/index.html">About</a></li>
+        <li><a href="../../../../about/honey.html">Honey</a></li>
+      </ul>
+    </nav>
+    <article>
+  <header>
+  <h2>Bandaids considered good</h2>
+  <p><small>20 Jan 2015</small></p>
+  </header>
+
+<p>This is going to be a non technical post compared to what I have written in the past. It touches a subject I am thinking about for a while now: bandaids aka hacks, fixmes, hotfixes and so on. I despised them.</p>
+
+<p>There was a time I thought a good programmer must not do this. I would never allow myself to take shortcuts or be satisfied with mediocre solutions. Today I am happily running such a bandaid myself and I think it is OK. Let me tell you why.</p>
+
+<h3 id="the-patient">The patient</h3>
+
+<p>We have a piece of software: X which is quite critical because it is a reverse proxy for the requests the Wunderlist 3 API receives through websockets. X is working great — for the first hours. It’s performance slightly decreases over time and at some point it does not do anything at all. We have multiple servers running X so it takes a while until we are in trouble. Our clients are pretty tolerant and are switching to normal HTTP when they notice that the websocket is not working. Unfortunately that is something we do not want to happen we have that thing for a reason after all.</p>
+
+<h3 id="the-bandaid">The bandaid</h3>
+
+<p>Albeit not very much code X is not an easy thing to work on. There are only a couple of people working on it and they are tired of it. Fixing X’s problems is tedious. Regular pages from Pagerduty are not helpful either. Then I was on call and got paged too like everybody else. The first thing I did was writing X-tester. A thing that checks every server running X. X-tester sends numbers to <a href="http://librato.com">Librato</a> and I set up alerts based on these numbers. Now I got paged even more but at least none of our clients noticed anymore and we had pretty graphs helping us understanding the situation better.</p>
+
+<p>Next time I was on call I got paged again during the night and as you might or might not know thats a pretty sad thing. Since our default reaction to X’s problems was rebooting the servers I figured X-tester could do that as well for me. Since X-tester reboots X servers on its own I have not received another page for that problem, neither has anyone else.</p>
+
+<p>We are still very well aware of that problem but we are not stressed out because of it. We now have the time to ponder about a better solution. Our bandaid is very transparent and visible at the same time. It is external and can be turned off if necessary. Just like that. At the same time it is producing metrics and there are pretty graphs  everybody can have a look at. The X-tester features 250 lines of code in total which is very approachable for everybody.</p>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<p>Everybody feels better now and I am very glad I got to reconsider my point of view. I have seen similiar things in many place — I bet you are operating something like that too! I would love to hear about it and I don’t think you should feel bad about it. Thanks for reading.</p>
+
+  </br>
+  If you read this far you should probably follow me on <a href="https://www.twitter.com/i0rek">twitter</a>.
+</article>
+<footer>
+  
+  <br />
+  <small><a href="../../../2014/12/25/consul_dns.html" class="previous">&laquo;&nbsp;Consul DNS Interface Exploration</a></small>
+  
+  
+  <div style="float:right;"><small><a href="../21/privacy.html" class="next">Privacy&raquo;&nbsp;</a></small></div>
+  
+</footer>
+
+    <!-- Start of StatCounter Code for Default Guide -->
+    <script type="text/javascript">
+      var sc_project=9577359;
+      var sc_invisible=1;
+      var sc_security="6beb8b07";
+      var scJsHost = (("https:" == document.location.protocol) ?
+      "https://secure." : "http://www.");
+      document.write("<sc"+"ript type='text/javascript' src='" +
+      scJsHost+
+      "statcounter.com/counter/counter.js'></"+"script>");
+    </script>
+    <noscript><div class="statcounter"><a title="hits counter"
+          href="http://statcounter.com/free-hit-counter/"
+          target="_blank"><img class="statcounter"
+          src="http://c.statcounter.com/9577359/0/6beb8b07/1/"
+          alt="hits counter"></a></div></noscript>
+    <!-- End of StatCounter Code for Default Guide -->
+  </body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <title>Consul DNS Interface Exploration</title>
+    <style type="text/css">
+      body {
+        font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 20px;
+        line-height: 1.5;
+        max-width: 700px;
+        margin: 0 auto;
+        padding-left: 4%;
+        padding-right: 4%;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizelegibility;
+      }
+      body header, nav, nav ul, nav li { display:inline-block; padding: 0; }
+      header h1 { margin-right: 0.5em }
+      nav li { margin-left: 0.5em }
+      h1, h2, h3, h4 {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+      body nav, body article header, body footer {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+      }
+      img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        
+          Hans Hasselberg
+        
+      </h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../../../../index.html">Home</a></li>
+        <li><a href="../../../../about/index.html">About</a></li>
+        <li><a href="../../../../about/honey.html">Honey</a></li>
+      </ul>
+    </nav>
+    <article>
+  <header>
+  <h2>Consul DNS Interface Exploration</h2>
+  <p><small>25 Dec 2014</small></p>
+  </header>
+
+<p>Recently I looked into Consul’s <a href="https://consul.io/docs/agent/dns.html">DNS Interface</a>. It is a very nice feature, it lets you query for nodes or services via DNS. During my experiments I was running three Consul servers on <a href="https://aws.amazon.com/ec2/instance-types/#Compute_Optimized">c3.large EC2 instances</a> and ten Consul clients on c3.large.</p>
+
+<p><em>A note on creating a separate consul cluster for testing: The most relieable way to boot separate cluster was to use different encryption keys. Since AWS reuses IP addresses it is possible that your test cluster joins your production one. That happened to me.</em></p>
+
+<p>I used <a href="https://github.com/cobblau/dnsperf">dnsperf</a> to measure the time it takes to respond to 1000 DNS requests: ~0.5sec. While doing the load tests the cluster leaders cpu was saturated. This is without setting any of the DNS configuration options. I wondered how the DNS interface works at all and where the number came from and started looking into DNS related configuration options.</p>
+
+<h3 id="configuration-option-allow_stale">Configuration option: allow_stale</h3>
+
+<p>The configuration option <a href="https://consul.io/docs/agent/options.html#allow_stale"><code class="language-plaintext highlighter-rouge">allow_stale</code></a> is set to <code class="language-plaintext highlighter-rouge">false</code> by default. Setting it to <code class="language-plaintext highlighter-rouge">true</code> allows not only the leader to respond to DNS queries but also other servers. Every query is still going to be sent to one of the servers, but now it doesn’t have to be the leader. When I repeated my load test with that option turned on, I was expecting that every server got its share of requests to answer and thus the 1000 requests were answered faster. The actual result was that only one randomly selected server was used and the time was the same.</p>
+
+<p>This happens because the connection to one of the servers is <a href="https://github.com/hashicorp/consul/blob/b74af612a9b58e1c8b9e341596ea957d51fa47c2/consul/client.go#L339">cached</a> for <a href="https://github.com/hashicorp/consul/blob/b74af612a9b58e1c8b9e341596ea957d51fa47c2/consul/client.go#L21">30 seconds</a>. With the current code you might end up doing your requests only ever to the same server. I played around <a href="https://github.com/i0rek/consul/compare/multiple_cached_conns">a bit</a> with enabling connections to all the servers but it didn’t end up speeding things up significantly. Which is why I did not continue to work on it.</p>
+
+<h3 id="configuration-option-_ttl">Configuration option: *_ttl</h3>
+
+<p>Lets have a look at <a href="https://consul.io/docs/agent/options.html#service_ttl"><code class="language-plaintext highlighter-rouge">service_ttl</code></a>. The default is <code class="language-plaintext highlighter-rouge">0</code> but it can be set to e.g. <code class="language-plaintext highlighter-rouge">5s</code>. The result is that the TTL is changed. It has no impact on how Consul does DNS queries whatsoever. It does not cache anything based on that value. Consul leaves that to other tools like <a href="http://www.thekelleys.org.uk/dnsmasq/doc.html">dnsmasq</a>(<a href="http://thekelleys.org.uk/gitweb/?p=dnsmasq.git;a=commitdiff;h=1023dcbc9e358e42c005414b2f54b3a65daf3b8c">does not cache</a> results from non recursive name servers) or <a href="http://bind9.net">bind</a>.</p>
+
+<p>Using the TTL to cache DNS results works as expected. Unfortunately it literally caches the result. If you have ten servers for a service, your first real DNS request returns three of them. Every subsequent request return the exact same three servers for the duration of your TTL. Consul clients have the full list though and if they would be taking care of the caching themself they could use their cached result to return more than three servers. Thats only theory though.</p>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<p>I hope I shed some light on Consuls DNS interface! It certainly helped me a lot to dig into it. For our reverse proxy kind of project I decided to use <a href="https://github.com/hashicorp/consul-template">consul-template</a> instead. I want to thank <a href="http://torsten.io">Torsten</a> for his great feedback on this post! Thanks for reading.</p>
+
+  </br>
+  If you read this far you should probably follow me on <a href="https://www.twitter.com/i0rek">twitter</a>.
+</article>
+<footer>
+  
+  <br />
+  <small><a href="../02/consul_setup.html" class="previous">&laquo;&nbsp;Setting up Consul on AWS</a></small>
+  
+  
+  <div style="float:right;"><small><a href="../../../2015/01/20/bandaid.html" class="next">Bandaids considered good&raquo;&nbsp;</a></small></div>
+  
+</footer>
+
+    <!-- Start of StatCounter Code for Default Guide -->
+    <script type="text/javascript">
+      var sc_project=9577359;
+      var sc_invisible=1;
+      var sc_security="6beb8b07";
+      var scJsHost = (("https:" == document.location.protocol) ?
+      "https://secure." : "http://www.");
+      document.write("<sc"+"ript type='text/javascript' src='" +
+      scJsHost+
+      "statcounter.com/counter/counter.js'></"+"script>");
+    </script>
+    <noscript><div class="statcounter"><a title="hits counter"
+          href="http://statcounter.com/free-hit-counter/"
+          target="_blank"><img class="statcounter"
+          src="http://c.statcounter.com/9577359/0/6beb8b07/1/"
+          alt="hits counter"></a></div></noscript>
+    <!-- End of StatCounter Code for Default Guide -->
+  </body>
+</html>

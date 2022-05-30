@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <title>Costs of a PostgreSQL connection</title>
+    <style type="text/css">
+      body {
+        font-family: "freight-text-pro",Georgia,Cambria,"Times New Roman",Times,serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 20px;
+        line-height: 1.5;
+        max-width: 700px;
+        margin: 0 auto;
+        padding-left: 4%;
+        padding-right: 4%;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizelegibility;
+      }
+      body header, nav, nav ul, nav li { display:inline-block; padding: 0; }
+      header h1 { margin-right: 0.5em }
+      nav li { margin-left: 0.5em }
+      h1, h2, h3, h4 {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+      body nav, body article header, body footer {
+        font-family: "jaf-bernino-sans","Lucida Grande","Lucida Sans Unicode","Lucida Sans",Geneva,Verdana,sans-serif;
+        letter-spacing: -0.02em;
+      }
+      img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        
+          Hans Hasselberg
+        
+      </h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="../../../../index.html">Home</a></li>
+        <li><a href="../../../../about/index.html">About</a></li>
+        <li><a href="../../../../about/honey.html">Honey</a></li>
+      </ul>
+    </nav>
+    <article>
+  <header>
+  <h2>Costs of a PostgreSQL connection</h2>
+  <p><small>19 Feb 2014</small></p>
+  </header>
+
+<p>This blog post explains the costs of a PostgreSQL connection.</p>
+
+<p><strong>TLDR;</strong> Keep the number of PostgreSQL connections low, preferably around <code class="language-plaintext highlighter-rouge">2*cores + hdd spindles</code><sup>[9]</sup>. More connections will only cause you more trouble.</p>
+
+<h3 id="background">Background</h3>
+
+<p>Paying attention to the number of connections to PostgreSQL helped us a lot at <a href="http://www.6wunderkinder.com">6Wunderkinder</a>. We’ve had trouble with PostgreSQL, manifesting itself in two ways:</p>
+
+<ol>
+  <li>We were running out of memory which lead to significantly more reads from disk and in turn slower response times.</li>
+  <li>We were running out of file handles which caused the database to crash</li>
+</ol>
+
+<p>In both cases we had a couple hundred open connections to the database, and we were able to solve both cases by putting a PGBouncer<sup>[5]</sup> in front of the database.
+PGBouncer is a connection pool for PostgreSQL databases. We configured it to allow 20 connections to the database while providing 1000 connections to clients. Apparently 20 connections are enough for us to get the work done. Depending on your situation it might be enough to set <code class="language-plaintext highlighter-rouge">max_connections</code><sup>[8]</sup> appropriately.</p>
+
+<p>The issue was solved, but I still wasn’t sure what was going on. So I decided to collect every piece of information I could find about the costs of a connection in PostgreSQL 9.3!</p>
+
+<h3 id="costs">Costs</h3>
+
+<p>There are two different kind of costs:</p>
+
+<ol>
+  <li>resources necessary for global state:
+    <ul>
+      <li>lock table<sup>[1]</sup><sup>[5]</sup>: lists every lock</li>
+      <li>procarray<sup>[1]</sup><sup>[3]</sup>: lists every connection</li>
+      <li>local data.</li>
+    </ul>
+  </li>
+  <li>resources for each connection, which is its <strong>own forked process</strong>:
+    <ul>
+      <li>work_mem<sup>[2]</sup>: used for sort operations and hash tables; defaults to 1MB</li>
+      <li>max_files_per_process<sup>[2]</sup>: postgres will only clean up when it is exceeding the limit; defaults to 1000</li>
+      <li>temp_buffers<sup>[2]</sup>: used only for access to temporary tables; defaults to 8MB.</li>
+    </ul>
+  </li>
+</ol>
+
+<p>According to <sup>[1]</sup> the memory footprint usually amounts to ~10MB. 
+A secondary effect is once you need more memory to satisfy each connection there is more pressure on the cache since less memory is available (which was our problem).</p>
+
+<h3 id="fin">Fin</h3>
+
+<p>In retrospect it sounds perfectly reasonable that reducing the number of connections helped us! Lets assume we have 370 connections:</p>
+
+<p>without PGBouncer:<br />
+<code class="language-plaintext highlighter-rouge">10MB * 370 connections = 3700MB</code><br />
+with PGBouncer:<br />
+<code class="language-plaintext highlighter-rouge">10MB * 20 connections = 200MB</code>.</p>
+
+<p>Freeing ~3.5GB of memory was <em>exactly</em> what we saw when we switched to PGBouncer! We then saw the free memory being used and the performance getting better.</p>
+
+<p>The second issue we had makes sense too! Let’s again assume we have 370 connections:</p>
+
+<p>without PGBouncer:<br />
+<code class="language-plaintext highlighter-rouge">1000 files per connection * 370 = 370,000 files</code><br />
+with PGBouncer:<br />
+<code class="language-plaintext highlighter-rouge">1000 files per connection * 20 = 20,000 files</code>.</p>
+
+<p>Running out of files is not surprising any more since PostgreSQL will only clean them up when it hits its limits. Until then it relies on the OS to handle this for it.</p>
+
+<p>Digging into PostgreSQL was fun, and I hope it helps you dealing with your database!</p>
+
+<h3 id="acknowledgements">Acknowledgements</h3>
+
+<p>I gathered this information while working with <a href="http://torsten.io">Torsten</a> on our database and want to thank <a href="https://twitter.com/itchyankles">Ryan</a> for proofreading!</p>
+
+<p>Get in touch with <a href="../../../../about.html">me</a>, if you want to share your thoughts!</p>
+
+<p>Edit: There is a discussion on <a href="https://news.ycombinator.com/item?id=7263696">Hackernews</a>.</p>
+
+<p>Edit: I added Cybertec: max_connections - Performance impacts<sup>10</sup> to the sources. It is an experiment demonstrating how idle connections hurt performance.</p>
+
+<h3 id="sources">Sources</h3>
+
+<ol>
+  <li><a href="https://postgres.heroku.com/blog/past/2013/11/22/connection\_limit\_guidance/">Heroku: Connection Limit Guidance</a></li>
+  <li><a href="http://www.postgresql.org/docs/9.3/static/runtime-config-resource.html">PostgreSQL: Resource Consumption</a></li>
+  <li><a href="http://doxygen.postgresql.org/procarray_8c_source.html">PostgreSQL: procarray.c</a></li>
+  <li><a href="http://www.slideshare.net/PostgresOpen/inside-shmem">Bruce Momjian:  Inside PostgreSQL Shared Memory</a></li>
+  <li><a href="http://www.postgresql.org/docs/9.3/static/view-pg-locks.html">PostgreSQL: pg_locks</a></li>
+  <li><a href="http://pgfoundry.org/projects/pgbouncer/">PGBouncer</a></li>
+  <li><a href="http://wiki.postgresql.org/wiki/PgBouncer">PostgreSQL Wiki: PGBouncer</a></li>
+  <li><a href="http://www.postgresql.org/docs/9.3/static/runtime-config-connection.html#GUC-MAX-CONNECTIONS">PostgreSQL: Connections and Authentication</a></li>
+  <li><a href="http://wiki.postgresql.org/wiki/Number_Of_Database_Connections">PostgreSQL Wiki: Number of Database Connections</a></li>
+  <li><a href="http://www.cybertec.at/max_connections-performance-impacts/">Cybertec: max_connections - Performance impacts</a></li>
+</ol>
+
+  </br>
+  If you read this far you should probably follow me on <a href="https://www.twitter.com/i0rek">twitter</a>.
+</article>
+<footer>
+  
+  <br />
+  <small><a href="../../01/21/init.html" class="previous">&laquo;&nbsp;Init</a></small>
+  
+  
+  <div style="float:right;"><small><a href="../../03/25/postgresql_cluster.html" class="next">PostgreSQL: CLUSTER table USING index;&raquo;&nbsp;</a></small></div>
+  
+</footer>
+
+    <!-- Start of StatCounter Code for Default Guide -->
+    <script type="text/javascript">
+      var sc_project=9577359;
+      var sc_invisible=1;
+      var sc_security="6beb8b07";
+      var scJsHost = (("https:" == document.location.protocol) ?
+      "https://secure." : "http://www.");
+      document.write("<sc"+"ript type='text/javascript' src='" +
+      scJsHost+
+      "statcounter.com/counter/counter.js'></"+"script>");
+    </script>
+    <noscript><div class="statcounter"><a title="hits counter"
+          href="http://statcounter.com/free-hit-counter/"
+          target="_blank"><img class="statcounter"
+          src="http://c.statcounter.com/9577359/0/6beb8b07/1/"
+          alt="hits counter"></a></div></noscript>
+    <!-- End of StatCounter Code for Default Guide -->
+  </body>
+</html>
